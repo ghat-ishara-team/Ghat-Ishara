@@ -29,3 +29,4 @@ service-account*.json
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+/ml/data/raw/PRAHARI_SoI_four_district_boundaries.gpkg
