@@ -1,0 +1,5 @@
+District,Valid_pixels,Mean_score,Approx_median,Invalid_score_pixels
+PUNE,16248008,0.1864,0.0215,0
+RAIGAD,7192788,0.4056,0.3885,0
+RATNAGIRI,8947853,0.4556,0.4755,0
+SATARA,11250657,0.1987,0.0325,0

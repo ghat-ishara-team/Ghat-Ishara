@@ -1,0 +1,25 @@
+{
+    "model": "rf_250m_controlled_22pred_EXPERIMENT",
+    "training_samples": 1605,
+    "test_samples": 440,
+    "threshold": 0.5,
+    "roc_auc": 0.8583,
+    "accuracy": 0.7864,
+    "precision": 0.7311,
+    "recall": 0.8935,
+    "f1_score": 0.8042,
+    "brier_score": 0.1472,
+    "log_loss": 0.4456,
+    "confusion_matrix": [
+        [
+            153,
+            71
+        ],
+        [
+            23,
+            193
+        ]
+    ],
+    "interpretation": "Uncalibrated relative susceptibility scores",
+    "limitation": "Case-control test metrics are not real-world landslide event probabilities"
+}
