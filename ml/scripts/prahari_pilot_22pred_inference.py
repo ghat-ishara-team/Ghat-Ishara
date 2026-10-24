@@ -18,13 +18,13 @@ from rasterio.transform import xy as pixel_xy
 from rasterio.warp import transform as convert_coords
 from shapely.strtree import STRtree
 
-ROOT = Path.home() / "GHAT_ISHARA_ML"
-DOWNLOADS = Path.home() / "Downloads"
-PILOT = DOWNLOADS / "PRAHARI_Controlled_19Band_Pilot.tif"
-RAIN = DOWNLOADS / "Copy of PRAHARI_Rainfall_Climatology_1981_2010.tif"
-RIVERS = DOWNLOADS / "prahari_exposure/data/hydro/PRAHARI_four_district_rivers_streams.gpkg"
+ROOT = Path(__file__).resolve().parents[1]
+# Input files are relative to the ML project root.
+PILOT = ROOT / "data/rasters/predictors/PRAHARI_Controlled_19Band_Pilot.tif"
+RAIN = ROOT / "data/rainfall/PRAHARI_Rainfall_Climatology_1981_2010.tif"
+RIVERS = ROOT / "data/gis/hydro/PRAHARI_four_district_rivers_streams.gpkg"
 GEOLOGY = {
-    "RAIGAD": DOWNLOADS / "PRAHARI_Raigad_Lithology_CLIPPED.gpkg",
+    "RAIGAD": ROOT / "data/gis/lithology/RAIGAD/PRAHARI_Raigad_Lithology_CLIPPED.gpkg",
     "PUNE": ROOT / "data/gis/lithology/PUNE/LITHOLOGY_DIST_PUNE.shp",
     "SATARA": ROOT / "data/gis/lithology/SATARA/LITHOLOGY_DIST_SATARA.shp",
     "RATNAGIRI": ROOT / "data/gis/lithology/RATNAGIRI/LITHOLOGY_DIST_RATNAGIRI.shp",

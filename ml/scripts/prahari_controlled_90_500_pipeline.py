@@ -20,16 +20,16 @@ from sklearn.metrics import f1_score, precision_score, recall_score, roc_auc_sco
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder
 
-ROOT = Path.cwd()
+ROOT = Path(__file__).resolve().parents[1]
 RAW = ROOT / "data" / "raw"
 DATA = ROOT / "data"
 MODELS = ROOT / "models"
-HOME = Path.home()
+# Input files are relative to the ML project root.
 
-RAIN = HOME / "Downloads/Copy of PRAHARI_Rainfall_Climatology_1981_2010.tif"
-RIVERS = HOME / "Downloads/prahari_exposure/data/hydro/PRAHARI_four_district_rivers_streams.gpkg"
+RAIN = DATA / "rainfall/PRAHARI_Rainfall_Climatology_1981_2010.tif"
+RIVERS = DATA / "gis/hydro/PRAHARI_four_district_rivers_streams.gpkg"
 LITHO_FILES = {
-    "RAIGAD": HOME / "Downloads/PRAHARI_Raigad_Lithology_CLIPPED.gpkg",
+    "RAIGAD": DATA / "gis/lithology/RAIGAD/PRAHARI_Raigad_Lithology_CLIPPED.gpkg",
     "PUNE": DATA / "gis/lithology/PUNE/LITHOLOGY_DIST_PUNE.shp",
     "SATARA": DATA / "gis/lithology/SATARA/LITHOLOGY_DIST_SATARA.shp",
     "RATNAGIRI": DATA / "gis/lithology/RATNAGIRI/LITHOLOGY_DIST_RATNAGIRI.shp",
