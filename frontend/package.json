@@ -15,7 +15,9 @@
     "test:edge": "deno test --node-modules-dir=manual --deny-net --deny-env supabase/functions/invite-official/handler.test.ts",
     "test:public-env": "node scripts/verify-public-env.mjs",
     "test:bootstrap": "node scripts/verify-bootstrap.mjs",
-    "test:local-recovery": "node scripts/verify-local-recovery.mjs"
+    "test:local-recovery": "node scripts/verify-local-recovery.mjs",
+    "test:persistence": "node scripts/verify-persistence.mjs",
+    "test:persistence-browser": "node scripts/verify-persistence-browser.mjs"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.2.8",

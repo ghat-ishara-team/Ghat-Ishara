@@ -36,6 +36,8 @@
 .portal-text-link { display: inline-flex; align-items: center; gap: 7px; color: #a5df9a; font-size: 13px; margin-top: 15px; text-decoration: underline; text-underline-offset: 4px; }
 .portal-quiet-button { display: inline-flex; justify-content: center; align-items: center; gap: 8px; min-height: 40px; padding: 9px 13px; color: #dcebd6; background: #8bce860b; border: 1px solid #9dc9954d; border-radius: 8px; font-size: 12px; }
 .portal-quiet-button:hover { background: #8bce861c; }
+.draft-controls { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+.draft-status { color: #bfdab5; font-size: 12px; line-height: 1.7; }
 .portal-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 35px; margin-bottom: 28px; }
 .portal-kicker { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: .15em; color: #a6c69e; }
 .portal-summary p { font-size: 15px; margin: 12px 0; overflow-wrap: anywhere; }

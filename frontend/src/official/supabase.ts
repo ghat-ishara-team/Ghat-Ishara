@@ -1,4 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
+import { projectIdentity, synchronizeOfficialOwner } from '../persistence/storage'
+import type { OfficialScope } from '../persistence/storage'
 
 // Capture only the custom invitation fragment. Remove it before any Auth requests/rendering.
 // Fragments are not sent in HTTP requests. Never persist or log this token.
@@ -32,6 +34,19 @@ function validPublicConfiguration() {
   } catch { return false }
 }
 
-export const supabase = validPublicConfiguration() ? createClient(url!, publicKey!, {
+const configured = validPublicConfiguration()
+export const officialProject = configured ? projectIdentity(url!) : null
+export const officialDraftScope = (userId: string): OfficialScope | null => officialProject ? { project: officialProject, userId } : null
+export const supabase = configured ? createClient(url!, publicKey!, {
   auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storageKey: 'ghat-ishara-official-auth' },
 }) : null
+
+// Keep cleanup alive even when the user navigates from the portal to a public route.
+// This callback performs no Supabase calls and never persists the session itself.
+if (supabase && officialProject) {
+  const project = officialProject
+  const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    synchronizeOfficialOwner(project, session?.user.id ?? null)
+  })
+  import.meta.hot?.dispose(() => subscription.unsubscribe())
+}

@@ -11,7 +11,7 @@ export type OfficialContext = {
   districts: District[]; invitation_expires_at: string
 }
 export type OfficialRecord = { id: string; district: District; title: string; summary: string; created_at: string }
-export type Profile = { user_id: string; invitation_email: string; status: OfficialStatus; invited_at: string; accepted_at: string | null }
+export type Profile = { user_id: string; invitation_email: string; status: OfficialStatus; invited_at: string; accepted_at: string | null; updated_at: string }
 export type ManagedOfficial = Profile & { role: OfficialRole; districts: District[] }
 export type AuditLog = { id: number; actor_id: string | null; target_user_id: string | null; action: string; created_at: string }
 
