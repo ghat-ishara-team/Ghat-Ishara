@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { mkdir } from 'node:fs/promises'
 import { chromium } from 'playwright-core'
 import AxeBuilder from '@axe-core/playwright'
+import { mockVectorBasemap } from './fixtures/map-basemap.mjs'
 
 // Run against npm run dev or npm run preview. Uses the host's Chromium.
 const baseURL = process.env.QA_BASE_URL ?? 'http://127.0.0.1:5173'
@@ -9,11 +10,12 @@ await mkdir('qa-results', { recursive: true })
 const browser = await chromium.launch({
   executablePath: process.env.CHROMIUM_PATH ?? '/usr/bin/chromium',
   headless: true,
-  args: ['--no-sandbox'],
+  args: ['--no-sandbox', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'],
 })
 const errors = []
 try {
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' })
+  await context.route('https://tiles.openfreemap.org/**', route => mockVectorBasemap(route))
   const page = await context.newPage()
   page.on('pageerror', error => errors.push(error.message))
   page.on('response', response => {
@@ -39,7 +41,7 @@ try {
   await page.reload({ waitUntil: 'networkidle' })
   assert.equal(await page.locator('h1').innerText(), 'Map Explorer')
   const mapAudit = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze()
-  assert.deepEqual(mapAudit.violations.map(item => item.id), [], 'Map placeholder accessibility')
+  assert.deepEqual(mapAudit.violations.map(item => item.id), [], 'Map Explorer accessibility')
   for (const route of ['/districts', '/methodology', '/about', '/missing-page']) {
     await page.goto(`${baseURL}${route}`, { waitUntil: 'networkidle' })
     assert.equal(await page.locator('main h1').count(), 1)

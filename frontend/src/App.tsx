@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from 'motion/react'
 import { ArrowLeft, ArrowRight, Compass, Layers3, Map, MapPin, Menu, Mountain, X } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
+const MapExplorer = lazy(() => import('./map/MapExplorer'))
 const OfficialPortal = lazy(() => import('./official/OfficialPortal'))
 
 const navigation = [
@@ -29,6 +30,7 @@ function Brand() {
 }
 
 function Header() {
+  const { pathname } = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
   const toggleRef = useRef<HTMLButtonElement>(null)
 
@@ -50,7 +52,7 @@ function Header() {
         <Brand />
         <nav aria-label="Main navigation" className="desktop-nav">
           {navigation.map(({ to, label }) => (
-            <NavLink key={to} to={to} end={to === '/'}>{label}</NavLink>
+            <NavLink key={to} to={to === '/map' && pathname === '/explore-map' ? '/explore-map' : to} end={to === '/'}>{label}</NavLink>
           ))}
         </nav>
         <Link to="/map" className="button button-green header-cta">Get Started <ArrowRight size={18} aria-hidden="true" /></Link>
@@ -68,7 +70,7 @@ function Header() {
       </div>
       <nav id="mobile-navigation" aria-label="Mobile navigation" className="mobile-nav" hidden={!menuOpen}>
         {navigation.map(({ to, label }) => (
-          <NavLink key={to} to={to} end={to === '/'} onClick={() => setMenuOpen(false)}>{label}<ArrowRight size={16} aria-hidden="true" /></NavLink>
+          <NavLink key={to} to={to === '/map' && pathname === '/explore-map' ? '/explore-map' : to} end={to === '/'} onClick={() => setMenuOpen(false)}>{label}<ArrowRight size={16} aria-hidden="true" /></NavLink>
         ))}
       </nav>
     </header>
@@ -103,11 +105,6 @@ function LandingPage({ entrancePlayed }: { entrancePlayed: { current: boolean } 
 
 type PageDetails = { title: string; eyebrow: string; description: string; icon: LucideIcon; note: string }
 const pages: Record<string, PageDetails> = {
-  map: {
-    title: 'Map Explorer', eyebrow: 'Explore the landscape', icon: Map,
-    description: 'A closer look at landslide susceptibility across Pune, Raigad, Ratnagiri and Satara.',
-    note: 'The interactive map and susceptibility layers will arrive in the next milestone. No map data is displayed in this preview.',
-  },
   districts: {
     title: 'Four districts. One shared landscape.', eyebrow: 'Our study region', icon: MapPin,
     description: 'Pune, Raigad, Ratnagiri and Satara form the focus of GHAT ISHARA in Maharashtra’s Western Ghats.',
@@ -156,7 +153,7 @@ export default function App() {
     const officialTitles: Record<string, string> = {
       '/official/accept-invite': 'Accept invitation', '/official/dashboard': 'Official dashboard', '/official/admin': 'Official administration',
     }
-    const label = navigation.find(item => item.to === pathname)?.label ?? officialTitles[pathname] ?? 'Page not found'
+    const label = (pathname === '/explore-map' ? 'Explore Map' : navigation.find(item => item.to === pathname)?.label) ?? officialTitles[pathname] ?? 'Page not found'
     document.title = pathname === '/' ? 'GHAT ISHARA | A Safer Western Ghats' : `${label} | GHAT ISHARA`
     if (previousPath.current !== pathname) {
       document.getElementById('main-content')?.focus({ preventScroll: true })
@@ -172,6 +169,7 @@ export default function App() {
       <Header />
       <Routes>
         <Route path="/" element={<LandingPage entrancePlayed={landingEntrancePlayed} />} />
+        {['/map', '/explore-map'].map(path => <Route key={path} path={path} element={<Suspense fallback={<main id="main-content" tabIndex={-1} className="secondary-page page-width"><p role="status">Opening the Map Explorer…</p></main>}><MapExplorer /></Suspense>} />)}
         {Object.keys(pages).map(page => <Route key={page} path={`/${page}`} element={<PlaceholderPage page={page} />} />)}
         <Route path="/official/*" element={<Suspense fallback={<main id="main-content" tabIndex={-1} className="secondary-page page-width"><p role="status">Opening the official portal…</p></main>}><OfficialPortal /></Suspense>} />
         <Route path="*" element={<NotFoundPage />} />

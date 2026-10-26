@@ -17,13 +17,20 @@
     "test:bootstrap": "node scripts/verify-bootstrap.mjs",
     "test:local-recovery": "node scripts/verify-local-recovery.mjs",
     "test:persistence": "node scripts/verify-persistence.mjs",
-    "test:persistence-browser": "node scripts/verify-persistence-browser.mjs"
+    "test:persistence-browser": "node scripts/verify-persistence-browser.mjs",
+    "map:inspect": "node scripts/geospatial/run.mjs inspect",
+    "map:tiles": "node scripts/geospatial/run.mjs generate",
+    "test:map:geo": "node scripts/geospatial/run.mjs test",
+    "test:map": "node scripts/verify-map.mjs",
+    "test:map-browser": "node scripts/verify-map-browser.mjs",
+    "test:basemap-live": "node scripts/verify-basemap-live.mjs"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.2.8",
     "@fontsource/libre-caslon-display": "^5.2.8",
     "@supabase/supabase-js": "^2.118.0",
     "lucide-react": "^0.577.0",
+    "maplibre-gl": "^6.16.0",
     "motion": "^12.36.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
