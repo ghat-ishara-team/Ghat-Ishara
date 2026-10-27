@@ -6,7 +6,11 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "typecheck": "tsc --noEmit",
-    "build": "npm run typecheck && vite build",
+    "build": "npm run map:preflight:source && npm run typecheck && vite build && npm run map:preflight",
+    "map:preflight:source": "node scripts/map-hosting/preflight.mjs --source-only",
+    "map:preflight": "node scripts/map-hosting/preflight.mjs",
+    "verify:map-hosted": "node scripts/map-hosting/verify-hosted.mjs",
+    "test:map-hosting": "node scripts/map-hosting/test-hosting.mjs",
     "preview": "vite preview --host 127.0.0.1",
     "verify:browser": "node scripts/verify.mjs",
     "test:permissions": "node scripts/verify-permissions.mjs",

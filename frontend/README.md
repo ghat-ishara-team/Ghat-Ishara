@@ -61,4 +61,4 @@ Set `CHROMIUM_PATH` if Chromium is elsewhere. Set `QA_BASE_URL=http://127.0.0.1:
 
 See [ASSETS.md](./ASSETS.md) for the background photo source, license and font credits. The supplied design reference was used only as visual guidance.
 
-For future static hosting, serve `dist/` and configure unknown application paths to return `index.html` so direct links such as `/map` work. No deployment, commit or push is part of this milestone.
+For the current Cloudflare Pages Direct Upload preparation, follow [MAP_HOSTING.md](./MAP_HOSTING.md). Restore the existing ignored map assets before building; `npm run build` now runs read-only map preflights before and after Vite. Serve the complete `dist/` artifact. Explicit application rewrites preserve deep links, while a static `404.html` keeps missing `/generated-data/*` files from becoming successful SPA responses. Do not add a blanket fallback for map assets. Deployment remains a separate manual action; no npm script uploads or publishes the site.
