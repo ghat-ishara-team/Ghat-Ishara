@@ -24,6 +24,7 @@
     "test:map": "node scripts/verify-map.mjs",
     "test:districts": "node scripts/verify-districts.mjs",
     "test:methodology": "node scripts/verify-methodology.mjs",
+    "test:about": "node scripts/verify-about.mjs",
     "test:map-browser": "node scripts/verify-map-browser.mjs",
     "test:basemap-live": "node scripts/verify-basemap-live.mjs",
     "map:scores": "node scripts/geospatial/run.mjs scores",

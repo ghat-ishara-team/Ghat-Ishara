@@ -1,11 +1,10 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Route, Routes, useLocation } from 'react-router-dom'
-import { motion, useReducedMotion } from 'motion/react'
-import { ArrowLeft, ArrowRight, Compass, Map, MapPin, Menu, Mountain, X } from 'lucide-react'
-import type { LucideIcon } from 'lucide-react'
+import { ArrowRight, Compass, Map, MapPin, Menu, X } from 'lucide-react'
 import { DistrictProfile, DistrictsOverview } from './districts/DistrictsPage'
 import { districtById } from './map/config'
 import MethodologyPage from './methodology/MethodologyPage'
+import AboutPage from './about/AboutPage'
 
 const MapExplorer = lazy(() => import('./map/MapExplorer'))
 const OfficialPortal = lazy(() => import('./official/OfficialPortal'))
@@ -106,34 +105,6 @@ function LandingPage({ entrancePlayed }: { entrancePlayed: { current: boolean } 
   )
 }
 
-type PageDetails = { title: string; eyebrow: string; description: string; icon: LucideIcon; note: string }
-const pages: Record<string, PageDetails> = {
-  about: {
-    title: 'A safer tomorrow starts with understanding.', eyebrow: 'About GHAT ISHARA', icon: Mountain,
-    description: 'A hackathon project mapping landslide susceptibility across Pune, Raigad, Ratnagiri and Satara, Maharashtra.',
-    note: 'Our goal is to help communities, planners and authorities better understand landslide-prone areas through geospatial data and machine learning.',
-  },
-}
-
-function PlaceholderPage({ page }: { page: string }) {
-  const { title, eyebrow, description, icon: Icon, note } = pages[page]
-  const reducedMotion = useReducedMotion()
-  return (
-    <main id="main-content" tabIndex={-1} className="secondary-page page-width">
-      <motion.div className="secondary-content" initial={reducedMotion ? false : { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-        <Link to="/" className="back-link"><ArrowLeft size={16} aria-hidden="true" />Back to the mountains</Link>
-        <div className="page-icon"><Icon size={30} strokeWidth={1.4} aria-hidden="true" /></div>
-        <p className="eyebrow">{eyebrow}</p>
-        <h1>{title}</h1>
-        <p className="secondary-description">{description}</p>
-        <div className="preview-note"><span className="preview-label">{page === 'about' ? 'The first chapter' : 'Coming next'}</span><p>{note}</p></div>
-        <Link to={page === 'map' ? '/districts' : '/map'} className="button button-green">{page === 'map' ? 'Meet the districts' : 'Explore the Map'}<ArrowRight size={18} aria-hidden="true" /></Link>
-        {page === 'about' && <p className="photo-credit">Background photograph by <a href="https://unsplash.com/photos/a-waterfall-in-a-valley-7TBDoi67iUk" target="_blank" rel="noreferrer">Chetan Sane / Unsplash<span className="sr-only"> (opens in a new tab)</span></a>. Used under the <a href="https://unsplash.com/license" target="_blank" rel="noreferrer">Unsplash License<span className="sr-only"> (opens in a new tab)</span></a>.</p>}
-      </motion.div>
-    </main>
-  )
-}
-
 function NotFoundPage() {
   return <main id="main-content" tabIndex={-1} className="secondary-page page-width"><div className="secondary-content"><Compass size={36} className="text-sage mb-6" aria-hidden="true" /><p className="eyebrow">404 · Off the trail</p><h1>Let’s find your way back.</h1><p className="secondary-description">This page doesn’t exist. The mountains are still here.</p><Link className="button button-green" to="/">Return Home<ArrowRight size={18} aria-hidden="true" /></Link></div></main>
 }
@@ -167,7 +138,7 @@ export default function App() {
         <Route path="/districts" element={<DistrictsOverview />} />
         <Route path="/districts/:districtId" element={<DistrictProfile />} />
         <Route path="/methodology" element={<MethodologyPage />} />
-        {Object.keys(pages).map(page => <Route key={page} path={`/${page}`} element={<PlaceholderPage page={page} />} />)}
+        <Route path="/about" element={<AboutPage />} />
         <Route path="/official/*" element={<Suspense fallback={<main id="main-content" tabIndex={-1} className="secondary-page page-width"><p role="status">Opening the official portal…</p></main>}><OfficialPortal /></Suspense>} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
