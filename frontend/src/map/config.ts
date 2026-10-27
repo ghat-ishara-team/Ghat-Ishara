@@ -5,6 +5,9 @@ import type { District } from '../official/types'
 
 export type Bounds = [number, number, number, number]
 export const districtCatalog = catalog.map(item => ({ ...item, name: item.name as District, bounds: item.bounds as Bounds }))
+/** Public URLs use the catalog's exact, lowercase identifiers. */
+export const districtById = (id: string | null | undefined) => districtCatalog.find(item => item.id === id)
+export const districtMapURL = (id: string) => `/explore-map?district=${encodeURIComponent(id)}`
 export const studyBounds: Bounds = [Math.min(...catalog.map(item => item.bounds[0])), Math.min(...catalog.map(item => item.bounds[1])), Math.max(...catalog.map(item => item.bounds[2])), Math.max(...catalog.map(item => item.bounds[3]))]
 export const colorScale = scale
 export const manifestURL = '/generated-data/susceptibility/manifest.json'

@@ -3,6 +3,8 @@ import { Link, NavLink, Route, Routes, useLocation } from 'react-router-dom'
 import { motion, useReducedMotion } from 'motion/react'
 import { ArrowLeft, ArrowRight, Compass, Layers3, Map, MapPin, Menu, Mountain, X } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+import { DistrictProfile, DistrictsOverview } from './districts/DistrictsPage'
+import { districtById } from './map/config'
 
 const MapExplorer = lazy(() => import('./map/MapExplorer'))
 const OfficialPortal = lazy(() => import('./official/OfficialPortal'))
@@ -105,11 +107,6 @@ function LandingPage({ entrancePlayed }: { entrancePlayed: { current: boolean } 
 
 type PageDetails = { title: string; eyebrow: string; description: string; icon: LucideIcon; note: string }
 const pages: Record<string, PageDetails> = {
-  districts: {
-    title: 'Four districts. One shared landscape.', eyebrow: 'Our study region', icon: MapPin,
-    description: 'Pune, Raigad, Ratnagiri and Satara form the focus of GHAT ISHARA in Maharashtra’s Western Ghats.',
-    note: 'District profiles and local susceptibility insights will be added in a future milestone.',
-  },
   methodology: {
     title: 'From geospatial data to understanding.', eyebrow: 'The science behind the map', icon: Layers3,
     description: 'GHAT ISHARA brings geospatial data and machine learning together to study landslide susceptibility.',
@@ -153,7 +150,8 @@ export default function App() {
     const officialTitles: Record<string, string> = {
       '/official/accept-invite': 'Accept invitation', '/official/dashboard': 'Official dashboard', '/official/admin': 'Official administration',
     }
-    const label = (pathname === '/explore-map' ? 'Explore Map' : navigation.find(item => item.to === pathname)?.label) ?? officialTitles[pathname] ?? 'Page not found'
+    const profile = pathname.startsWith('/districts/') ? districtById(pathname.slice('/districts/'.length).replace(/\/$/, '')) : undefined
+    const label = profile ? `${profile.name} district` : (pathname === '/explore-map' ? 'Explore Map' : navigation.find(item => item.to === pathname)?.label) ?? officialTitles[pathname] ?? 'Page not found'
     document.title = pathname === '/' ? 'GHAT ISHARA | A Safer Western Ghats' : `${label} | GHAT ISHARA`
     if (previousPath.current !== pathname) {
       document.getElementById('main-content')?.focus({ preventScroll: true })
@@ -170,6 +168,8 @@ export default function App() {
       <Routes>
         <Route path="/" element={<LandingPage entrancePlayed={landingEntrancePlayed} />} />
         {['/map', '/explore-map'].map(path => <Route key={path} path={path} element={<Suspense fallback={<main id="main-content" tabIndex={-1} className="secondary-page page-width"><p role="status">Opening the Map Explorer…</p></main>}><MapExplorer /></Suspense>} />)}
+        <Route path="/districts" element={<DistrictsOverview />} />
+        <Route path="/districts/:districtId" element={<DistrictProfile />} />
         {Object.keys(pages).map(page => <Route key={page} path={`/${page}`} element={<PlaceholderPage page={page} />} />)}
         <Route path="/official/*" element={<Suspense fallback={<main id="main-content" tabIndex={-1} className="secondary-page page-width"><p role="status">Opening the official portal…</p></main>}><OfficialPortal /></Suspense>} />
         <Route path="*" element={<NotFoundPage />} />

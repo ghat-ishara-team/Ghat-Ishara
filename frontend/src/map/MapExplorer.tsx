@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { useReducedMotion } from 'motion/react'
 import { AlertTriangle, ArrowLeft, Check, Layers3, LocateFixed, MapPin, Minus, Plus, RefreshCw } from 'lucide-react'
 import { AttributionControl, Map as LibreMap, Marker, ScaleControl, setWorkerUrl, addProtocol } from 'maplibre-gl'
 import workerURL from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
 import { usePublicMapPreferences } from '../persistence/mapPreferences'
 import type { District } from '../official/types'
-import { baseStyle, boundsForDistrict, colorScale, districtCatalog, manifestURL, overlaySource, parseManifest } from './config'
+import { baseStyle, boundsForDistrict, colorScale, districtById, districtCatalog, manifestURL, overlaySource, parseManifest } from './config'
 import type { Manifest } from './config'
 import { loadBasemapStyle, resolveBasemapConfiguration } from './basemap'
 import { fetchSusceptibilityTile, tileProtocol } from './tileProtocol'
@@ -21,6 +21,9 @@ addProtocol(tileProtocol, fetchSusceptibilityTile)
 const basemap = resolveBasemapConfiguration({ VITE_BASEMAP_PROVIDER: import.meta.env.VITE_BASEMAP_PROVIDER, VITE_BASEMAP_STYLE: import.meta.env.VITE_BASEMAP_STYLE })
 
 export default function MapExplorer() {
+  const location = useLocation()
+  const requestedId = new URLSearchParams(location.search).get('district')
+  const requestedDistrict = districtById(requestedId)
   const preferences = usePublicMapPreferences()
   const preferencesRef = useRef(preferences)
   preferencesRef.current = preferences
@@ -50,6 +53,15 @@ export default function MapExplorer() {
   const activeOverlays = (manifest?.districts ?? []).filter(item => !district || item.name === district)
   const missing = districtCatalog.filter(item => (!district || item.name === district) && !manifest?.districts.some(layer => layer.id === item.id))
   const activeTileError = activeOverlays.some(item => tileErrors.includes(item.id))
+
+  // Apply URL intent once per navigation, not on every preference update. Controls
+  // and autosave then work normally even while the original query remains in the URL.
+  useEffect(() => {
+    const explicit = districtById(new URLSearchParams(location.search).get('district'))
+    if (!explicit) return
+    preferencesRef.current.setValue(previous => ({ ...previous, district: explicit.name }))
+    mapRef.current?.fitBounds(explicit.bounds, { padding: 35, duration: 0 })
+  }, [location.key, location.search])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -113,7 +125,7 @@ export default function MapExplorer() {
         const center = map.getCenter()
         preferencesRef.current.setValue(previous => ({ ...previous, position: { longitude: +center.lng.toFixed(6), latitude: +center.lat.toFixed(6), zoom: +map.getZoom().toFixed(3) } }))
       })
-      if (saved.status !== 'saved') map.fitBounds(boundsForDistrict(saved.value.district), { padding: 30, duration: 0 })
+      if (requestedDistrict || saved.status !== 'saved') map.fitBounds(requestedDistrict?.bounds ?? boundsForDistrict(saved.value.district), { padding: 30, duration: 0 })
     } catch { setMapError(true); setBusy(false); return }
     const observer = new ResizeObserver(() => map.resize())
     observer.observe(container.current)
@@ -225,6 +237,7 @@ export default function MapExplorer() {
       <aside id="map-controls" className="map-panel" aria-label="Map layer controls" tabIndex={-1}>
         <div className="map-panel-title"><Layers3 size={18} aria-hidden="true" /><h2>Explore the region</h2></div>
         <label className="map-label" htmlFor="map-district">Study district</label><select id="map-district" value={district ?? ''} onChange={event => frameDistrict(event.target.value ? event.target.value as District : null)}><option value="">All four districts</option>{districtCatalog.map(item => <option key={item.id}>{item.name}</option>)}</select>
+        {requestedId !== null && !requestedDistrict && <p className="map-small" role="status">The district in this URL is not recognised. Your current map preferences are being used.</p>}
         <button className="map-retry" type="button" disabled={!ready || mapError} onClick={() => { const center = mapRef.current?.getCenter(); if (center) inspection.select({ longitude: center.lng, latitude: center.lat }) }}><MapPin size={14} aria-hidden="true" />Inspect map center</button>
         <p className="map-small">Click the map to inspect an original source-cell score. Keyboard: focus the map, pan with arrow keys, then press Enter.</p>
         <div className="map-panel-divider" />
