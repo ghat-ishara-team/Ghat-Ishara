@@ -1,10 +1,11 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Route, Routes, useLocation } from 'react-router-dom'
 import { motion, useReducedMotion } from 'motion/react'
-import { ArrowLeft, ArrowRight, Compass, Layers3, Map, MapPin, Menu, Mountain, X } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Compass, Map, MapPin, Menu, Mountain, X } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { DistrictProfile, DistrictsOverview } from './districts/DistrictsPage'
 import { districtById } from './map/config'
+import MethodologyPage from './methodology/MethodologyPage'
 
 const MapExplorer = lazy(() => import('./map/MapExplorer'))
 const OfficialPortal = lazy(() => import('./official/OfficialPortal'))
@@ -107,11 +108,6 @@ function LandingPage({ entrancePlayed }: { entrancePlayed: { current: boolean } 
 
 type PageDetails = { title: string; eyebrow: string; description: string; icon: LucideIcon; note: string }
 const pages: Record<string, PageDetails> = {
-  methodology: {
-    title: 'From geospatial data to understanding.', eyebrow: 'The science behind the map', icon: Layers3,
-    description: 'GHAT ISHARA brings geospatial data and machine learning together to study landslide susceptibility.',
-    note: 'A detailed account of the datasets, model workflow and evaluation will be added after integration with the existing ML project.',
-  },
   about: {
     title: 'A safer tomorrow starts with understanding.', eyebrow: 'About GHAT ISHARA', icon: Mountain,
     description: 'A hackathon project mapping landslide susceptibility across Pune, Raigad, Ratnagiri and Satara, Maharashtra.',
@@ -170,6 +166,7 @@ export default function App() {
         {['/map', '/explore-map'].map(path => <Route key={path} path={path} element={<Suspense fallback={<main id="main-content" tabIndex={-1} className="secondary-page page-width"><p role="status">Opening the Map Explorer…</p></main>}><MapExplorer /></Suspense>} />)}
         <Route path="/districts" element={<DistrictsOverview />} />
         <Route path="/districts/:districtId" element={<DistrictProfile />} />
+        <Route path="/methodology" element={<MethodologyPage />} />
         {Object.keys(pages).map(page => <Route key={page} path={`/${page}`} element={<PlaceholderPage page={page} />} />)}
         <Route path="/official/*" element={<Suspense fallback={<main id="main-content" tabIndex={-1} className="secondary-page page-width"><p role="status">Opening the official portal…</p></main>}><OfficialPortal /></Suspense>} />
         <Route path="*" element={<NotFoundPage />} />
