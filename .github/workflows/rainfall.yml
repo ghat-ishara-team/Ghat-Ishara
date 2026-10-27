@@ -1,0 +1,104 @@
+name: GHAT ISHARA adaptive rainfall
+
+on:
+  schedule:
+    - cron: '7,37 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ghat-rainfall-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: 'IMERG_Live/requirements-cloud.txt'
+
+      - name: Install dependencies
+        run: pip install -r IMERG_Live/requirements-cloud.txt
+
+      - name: Configure Earthdata authentication
+        env:
+          EARTHDATA_USERNAME: ${{ secrets.EARTHDATA_USERNAME }}
+          EARTHDATA_PASSWORD: ${{ secrets.EARTHDATA_PASSWORD }}
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+
+          user = os.getenv("EARTHDATA_USERNAME")
+          password = os.getenv("EARTHDATA_PASSWORD")
+
+          if not user or not password:
+              raise SystemExit("Missing Earthdata secrets")
+
+          if any(c.isspace() for c in user + password):
+              raise SystemExit("Earthdata credentials contain unsupported whitespace")
+
+          path = Path.home() / ".netrc"
+          path.write_text(
+              f"machine urs.earthdata.nasa.gov login {user} password {password}\n"
+          )
+          path.chmod(0o600)
+          PY
+
+      - name: Adaptive rainfall monitoring
+        id: monitor
+        env:
+          HEAVY_RAIN_30MIN_MM: ${{ vars.HEAVY_RAIN_30MIN_MM }}
+          MONSOON_START: ${{ vars.MONSOON_START }}
+          MONSOON_END: ${{ vars.MONSOON_END }}
+          DRY_OBSERVATIONS_TO_RESET: '6'
+        run: python IMERG_Live/cloud_controller.py
+
+      - name: Save monitoring outputs
+        if: ${{ success() || failure() && steps.monitor.outcome == 'failure' }}
+        env:
+          TARGET_BRANCH: ${{ github.ref_name }}
+        run: |
+          if [ ! -f cloud_output/latest_status.json ]; then
+            echo "No monitoring status to persist."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Stage only files that actually exist.
+          for file in \
+            cloud_output/scheduler_state.json \
+            cloud_output/latest_status.json \
+            cloud_output/history.npz
+          do
+            if [ -f "$file" ]; then
+              git add -- "$file"
+            fi
+          done
+
+          if git diff --cached --quiet; then
+            echo "No monitoring changes to commit."
+            exit 0
+          fi
+
+          git commit -m "Update rainfall monitor state [skip ci]"
+
+          # Never force-push or redirect a feature-branch run to main.
+          git fetch origin "$TARGET_BRANCH"
+          git rebase "origin/$TARGET_BRANCH"
+          git push origin "HEAD:refs/heads/$TARGET_BRANCH"

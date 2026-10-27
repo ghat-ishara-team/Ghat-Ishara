@@ -30,3 +30,27 @@ service-account*.json
 .mypy_cache/
 .ruff_cache/
 /ml/data/raw/PRAHARI_SoI_four_district_boundaries.gpkg
+
+# NASA rainfall raw and processed files
+IMERG_Live/raw/
+IMERG_Live/processed/
+IMERG_Live/__pycache__/
+*.pyc
+*.part
+.netrc
+
+# Local backups
+IMERG_Live/*.previous.py
+.github/workflows/*.previous.yml
+
+# Cloud outputs are tracked selectively
+cloud_output/*
+!cloud_output/history.npz
+!cloud_output/scheduler_state.json
+!cloud_output/latest_status.json
+!cloud_output/rainfall_4h_latest.npz
+!cloud_output/rainfall_24h_latest.npz
+!cloud_output/rainfall_72h_latest.npz
+
+IMERG_Live/*.pre-fix.py
+.github/workflows/*.pre-fix.yml
