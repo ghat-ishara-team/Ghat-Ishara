@@ -74,7 +74,7 @@ A shared configuration, `src/map/color-scale.json`, controls both Python colorin
 | 0.6 ≤ score < 0.8 | `#e79b52` |
 | 0.8 ≤ score ≤ 1 | `#ce605b` |
 
-Zero is valid and colored. Masked NoData and exterior pixels are RGBA `[0,0,0,0]`. Lossless PNG preserves these categories and alpha. Fully transparent tiles inside the bounded tile rectangle are generated too, avoiding expected holes becoming misleading 404 errors. Low zooms sample/generalize small features; they are for regional interpretation, not precise site assessment. Category colors cannot recover exact floating-point scores; the frontend does not pretend to offer pixel-exact score queries.
+Zero is valid and colored. Masked NoData and exterior pixels are RGBA `[0,0,0,0]`. Lossless PNG preserves these categories and alpha. Fully transparent tiles inside the bounded tile rectangle are generated too, avoiding expected holes becoming misleading 404 errors. Low zooms sample/generalize small features; they are for regional interpretation, not precise site assessment. Category colors cannot recover exact floating-point scores. The public click inspector instead uses a separate lossless native-grid numerical layer; see [LOCATION_INSPECTION.md](LOCATION_INSPECTION.md). It never reads scores back from display colors.
 
 The preflight plan was **1,535 tiles / 383.8 MiB raw RGBA**, with a conservative PNG estimate of 10–80 MiB. Actual generation produced **10.71 MiB of PNGs (approximately 15 MiB allocated on disk including small-file overhead and metadata) in approximately 11 seconds** on this machine. GDAL cache is bounded to 128 MiB and warping memory to 64 MiB, plus Python/GDAL working buffers. At most 3,000 planned tiles and zooms within 5–12 are allowed. Disk space is checked before conversion. A generation job has no network calls.
 
@@ -85,7 +85,8 @@ Output is under **`public/generated-data/susceptibility/`**, ignored by Git. Eac
 ```sh
 cd ~/GHAT_ISHARA_ML/frontend
 npm install
-npm run map:tiles       # needed on a teammate's machine, since generated tiles are not committed
+npm run map:tiles       # visual overlays (derived assets are not committed)
+npm run map:scores      # exact source-grid numerical inspection
 npm run dev
 ```
 
@@ -103,6 +104,9 @@ Automated checks:
 ```sh
 npm run test:map
 npm run test:map:geo
+npm run test:scores:geo
+npm run test:scores
+npm run test:scores-browser
 npm run test:map-browser
 npm run test:basemap-live # opt-in: normal internet provider check
 npm run test:persistence
@@ -160,4 +164,4 @@ MapLibre source behavior is documented in its [source specification](https://map
 
 The source model is tagged **`rf_250m_controlled_22pred_EXPERIMENT`**, and **`RAINFALL_UNITS=UNVERIFIED`**. The source description explicitly calls scores uncalibrated and not operational warnings. This implementation validates data integrity, bounds and rendering, not model accuracy, rainfall units, calibration, sampling exclusions or training validity. Identical colors represent identical numeric bands, not validated hazard classes or calibrated cross-district probabilities. Regional and class distributions differ substantially between districts.
 
-These are static susceptibility outputs, not real-time forecasts, observed events or emergency advisories. NoData can mean excluded, missing or outside coverage and never means safe. Pixel resolution is not prediction accuracy. There is no measured district-boundary vector layer in this milestone, no live incident/weather integration, no pixel-score API and no new protected official functionality. Field validation, scientific review and a detailed QGIS comparison remain manual. Do not use this map alone for evacuation, travel or engineering decisions.
+These are static susceptibility outputs, not real-time forecasts, observed events or emergency advisories. NoData can mean excluded, missing or outside coverage and never means safe. Pixel resolution is not prediction accuracy. There is no measured district-boundary vector layer in this milestone, no live incident/weather integration, no server-side pixel-score API and no new protected official functionality. Field validation, scientific review and a detailed QGIS comparison remain manual. Do not use this map alone for evacuation, travel or engineering decisions.

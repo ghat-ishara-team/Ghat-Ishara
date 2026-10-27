@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useReducedMotion } from 'motion/react'
 import { AlertTriangle, ArrowLeft, Check, Layers3, LocateFixed, MapPin, Minus, Plus, RefreshCw } from 'lucide-react'
-import { AttributionControl, Map as LibreMap, ScaleControl, setWorkerUrl, addProtocol } from 'maplibre-gl'
+import { AttributionControl, Map as LibreMap, Marker, ScaleControl, setWorkerUrl, addProtocol } from 'maplibre-gl'
 import workerURL from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
 import { usePublicMapPreferences } from '../persistence/mapPreferences'
 import type { District } from '../official/types'
@@ -12,6 +12,8 @@ import { loadBasemapStyle, resolveBasemapConfiguration } from './basemap'
 import { fetchSusceptibilityTile, tileProtocol } from './tileProtocol'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import './map.css'
+import { useLocationInspection } from './useLocationInspection'
+import { LocationDetails } from './LocationDetails'
 
 // MapLibre 6 uses a separate ESM worker; let Vite bundle its shared imports.
 setWorkerUrl(workerURL)
@@ -40,6 +42,9 @@ export default function MapExplorer() {
   const [dataState, setDataState] = useState<'loading' | 'ready' | 'unavailable'>('loading')
   const [retry, setRetry] = useState(0)
   const { district, opacity, layers } = preferences.value
+  const inspection = useLocationInspection(district)
+  const inspectionRef = useRef(inspection)
+  inspectionRef.current = inspection
   const overlayVisible = layers.includes('susceptibility')
   const selected = districtCatalog.find(item => item.name === district)
   const activeOverlays = (manifest?.districts ?? []).filter(item => !district || item.name === district)
@@ -78,7 +83,7 @@ export default function MapExplorer() {
       map.touchZoomRotate.disableRotation()
       map.addControl(new AttributionControl({ compact: false, customAttribution: basemap.attribution }), 'bottom-right')
       map.addControl(new ScaleControl({ unit: 'metric' }), 'bottom-left')
-      map.getCanvas().setAttribute('aria-label', 'Interactive susceptibility map. Arrow keys pan; plus and minus zoom. District and layer controls follow the map.')
+      map.getCanvas().setAttribute('aria-label', 'Interactive susceptibility map. Arrow keys pan; plus and minus zoom. Press Enter to inspect the map center. District and layer controls follow the map.')
       map.on('style.load', () => { if (current) { setReady(true); setStyleRevision(previous => previous + 1) } })
       map.on('sourcedataloading', () => { if (current) setBusy(true) })
       map.on('idle', () => { if (current) { setBusy(false); if (providerInstalled.current) setBasemapLoading(false) } })
@@ -99,6 +104,10 @@ export default function MapExplorer() {
         }
       })
       map.on('webglcontextlost', () => { if (current) setMapError(true) })
+      map.on('click', event => inspectionRef.current.select({ longitude: event.lngLat.lng, latitude: event.lngLat.lat }))
+      map.getCanvas().addEventListener('keydown', event => {
+        if (event.key === 'Enter') { event.preventDefault(); const center = map.getCenter(); inspectionRef.current.select({ longitude: center.lng, latitude: center.lat }) }
+      })
       map.on('moveend', () => {
         if (!current) return
         const center = map.getCenter()
@@ -177,6 +186,19 @@ export default function MapExplorer() {
     map.setStyle(baseStyle(), { diff: false })
   }, [basemapError, mapError])
 
+  useEffect(() => {
+    const map = mapRef.current
+    const point = inspection.point
+    if (!map || !point) return
+    const button = document.createElement('button')
+    button.type = 'button'; button.className = 'location-marker'
+    button.setAttribute('aria-label', `Selected location: latitude ${point.latitude.toFixed(6)}, longitude ${point.longitude.toFixed(6)}. Open location details`)
+    button.title = 'Open location details'
+    button.addEventListener('click', event => { event.stopPropagation(); document.getElementById('location-details')?.focus({ preventScroll: true }) })
+    const marker = new Marker({ element: button }).setLngLat([point.longitude, point.latitude]).addTo(map)
+    return () => { marker.remove() }
+  }, [inspection.point])
+
   function frameDistrict(next: District | null) {
     preferences.setValue(previous => ({ ...previous, district: next }))
     mapRef.current?.fitBounds(boundsForDistrict(next), { padding: 35, duration: reducedRef.current ? 0 : 650 })
@@ -197,11 +219,14 @@ export default function MapExplorer() {
         <div className="map-view-label"><MapPin size={14} aria-hidden="true" />{district ?? 'Four-district study region'}</div>
         <div className="map-camera-controls" role="group" aria-label="Map view controls"><button onClick={() => mapRef.current?.zoomIn({ duration: reducedMotion ? 0 : 200 })} aria-label="Zoom in" disabled={!ready || mapError}><Plus size={19} aria-hidden="true" /></button><button onClick={() => mapRef.current?.zoomOut({ duration: reducedMotion ? 0 : 200 })} aria-label="Zoom out" disabled={!ready || mapError}><Minus size={19} aria-hidden="true" /></button><button onClick={() => frameDistrict(district)} aria-label="Reset district view" disabled={!ready || mapError}><LocateFixed size={19} aria-hidden="true" /></button></div>
         {(busy || basemapLoading || dataState === 'loading') && !mapError && <p className="map-loading" role="status">Loading {dataState === 'loading' ? 'susceptibility catalog' : basemapLoading ? 'geographic basemap' : 'map tiles'}…</p>}
+        <LocationDetails inspection={inspection} district={district} onClose={() => { inspection.clear(); mapRef.current?.getCanvas().focus({ preventScroll: true }) }} />
         {mapError && <div className="map-fatal" role="alert"><AlertTriangle size={24} aria-hidden="true" /><h2>The interactive map could not start.</h2><p>Enable WebGL in your browser, or try another browser and reload this page. District information and the score legend remain available below.</p></div>}
       </section>
       <aside id="map-controls" className="map-panel" aria-label="Map layer controls" tabIndex={-1}>
         <div className="map-panel-title"><Layers3 size={18} aria-hidden="true" /><h2>Explore the region</h2></div>
         <label className="map-label" htmlFor="map-district">Study district</label><select id="map-district" value={district ?? ''} onChange={event => frameDistrict(event.target.value ? event.target.value as District : null)}><option value="">All four districts</option>{districtCatalog.map(item => <option key={item.id}>{item.name}</option>)}</select>
+        <button className="map-retry" type="button" disabled={!ready || mapError} onClick={() => { const center = mapRef.current?.getCenter(); if (center) inspection.select({ longitude: center.lng, latitude: center.lat }) }}><MapPin size={14} aria-hidden="true" />Inspect map center</button>
+        <p className="map-small">Click the map to inspect an original source-cell score. Keyboard: focus the map, pan with arrow keys, then press Enter.</p>
         <div className="map-panel-divider" />
         <label className="map-overlay-toggle"><span><strong>Susceptibility overlay</strong><small>Experimental ML output</small></span><input id="map-overlay" type="checkbox" checked={overlayVisible} onChange={event => preferences.setValue(previous => ({ ...previous, layers: event.target.checked ? [...previous.layers.filter(layer => layer !== 'susceptibility'), 'susceptibility'] : previous.layers.filter(layer => layer !== 'susceptibility') }))} /></label>
         <div className="map-opacity-label"><label htmlFor="map-opacity">Overlay opacity</label><output htmlFor="map-opacity">{Math.round(opacity * 100)}%</output></div><input id="map-opacity" type="range" min="0" max="100" step="5" value={Math.round(opacity * 100)} onChange={event => preferences.setValue(previous => ({ ...previous, opacity: Number(event.target.value) / 100 }))} disabled={!overlayVisible} />
