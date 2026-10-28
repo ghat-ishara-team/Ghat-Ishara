@@ -12,3 +12,7 @@ supabase/.local-recovery/
 public/generated-data/
 scripts/geospatial/__pycache__/
 .venv-map/
+# Local public map release artifacts and private setup staging (never publish through Vite).
+release-output/
+.map-setup-*/
+.map-setup.lock

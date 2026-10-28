@@ -35,7 +35,10 @@
     "map:scores:inspect": "node scripts/geospatial/run.mjs scores-inspect",
     "test:scores:geo": "node scripts/geospatial/run.mjs test-scores",
     "test:scores": "node scripts/verify-scores.mjs",
-    "test:scores-browser": "node scripts/verify-scores-browser.mjs"
+    "test:scores-browser": "node scripts/verify-scores-browser.mjs",
+    "package:maps": "node scripts/map-distribution/package.mjs",
+    "setup:maps": "node scripts/map-distribution/setup.mjs",
+    "test:maps-distribution": "node scripts/map-distribution/distribution.test.mjs"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.2.8",

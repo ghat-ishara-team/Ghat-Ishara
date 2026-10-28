@@ -1,64 +1,37 @@
 # GHAT ISHARA frontend
 
-A cinematic, responsive landing page for the GHAT ISHARA landslide susceptibility hackathon project. Built with React, TypeScript, Vite, Tailwind CSS, React Router, Motion and Lucide React.
+A React, TypeScript and Vite experimental landslide susceptibility platform for Pune, Raigad, Ratnagiri and Satara. Public pages include Home, the MapLibre Map Explorer with real static overlays and exact Float32 inspection, district profiles, Methodology and About. Public access requires no Supabase login. Official access is invitation-only and separately configured.
 
-## Start locally
+## Clone and run
 
-Use Node.js 22.12+ and npm (the Supabase SDK requires Node 22+). From the repository root:
+Requires Node.js 22.12+ and npm 10+, Git, internet and repository access if private.
 
 ```bash
-cd frontend
-npm install
+git clone --branch feature/website https://github.com/shiragave2omkar-hub/Ghat-Ishara.git
+cd Ghat-Ishara/frontend
+npm ci
+npm run setup:maps
 npm run dev
 ```
 
-Open the local URL printed by Vite, normally **http://127.0.0.1:5173**. All fonts and the background photograph are served locally.
+Open **http://127.0.0.1:5173/**. `feature/website` does not need to be merged into `main`. **The map Release is not published yet:** setup reuses verified local data, but a fresh clone fails clearly until the approved GitHub asset details and checksum are configured. See [CLONE_AND_RUN.md](CLONE_AND_RUN.md) for complete prerequisites, private-release access, optional LFS-download skipping, official-login limitations and troubleshooting.
+
+Generated maps are ignored and distributed separately from code. No source TIFFs, models, Python GIS environment or training datasets are needed to run the public website. Scores are static, experimental and uncalibrated, not event probabilities or operational landslide warnings. Basemap resources require external OpenFreeMap access.
 
 ## Check and build
 
 ```bash
-npm run typecheck
+npm run map:preflight:source
 npm run build
 npm run preview
 ```
 
-`build` also runs TypeScript checks, then writes the production site to `dist/`. Preview normally runs at **http://127.0.0.1:4173**.
+Build verifies map assets before Vite and validates the completed `dist/` afterward. Missing/corrupt maps fail the build. Local preview normally uses http://127.0.0.1:4173/.
 
-## Routes
+## Distribution and tests
 
-The invitation-only official portal is documented in [OFFICIAL_PORTAL.md](./OFFICIAL_PORTAL.md), including configuration, migrations, first-admin bootstrap, security boundaries and the test plan. It remains visibly unconfigured until you supply a Supabase project; there is no demo authentication or public registration.
+[MAP_RELEASE.md](MAP_RELEASE.md) documents deterministic public archive creation, SHA-256 pinning, safe extraction, tests and the publication checklist. `npm run package:maps` produces ignored local artifacts only; no script publishes a Release or deploys the site. `npm run test:maps-distribution` tests archives and installation in temporary directories.
 
-| Route | First milestone |
-| --- | --- |
-| `/` | Full-screen hero, navigation and calls to action; no sections below it |
-| `/map` | Map Explorer placeholder |
-| `/districts` | Districts placeholder |
-| `/methodology` | Methodology placeholder |
-| `/about` | Project introduction and photo credits |
-| `/official/login` | Invitation-only password login |
-| `/official/accept-invite` | Invitation verification and password setup |
-| `/official/dashboard` | Protected district-scoped records |
-| `/official/admin` | Protected system-administrator invitation, account and audit interface |
-| Other paths | Friendly 404 with a home link |
+Existing checks include `test:map`, `test:scores`, `test:map-browser`, `test:scores-browser`, `test:districts`, `test:methodology`, `test:about`, `test:persistence` and `test:persistence-browser`. Browser tests need system Chromium or `CHROMIUM_PATH`; automated checks do not replace manual accessibility and live-service verification.
 
-Explore the Map and Get Started navigate to `/map` through React Router. Learn More navigates to `/about`. Route changes update the document title and move focus to the new main content. The mobile navigation supports Escape and restores focus to its toggle. Animations respect the operating system’s reduced-motion preference. At short heights or enlarged text, the hero can grow vertically so content remains readable and reachable.
-
-These pages do not yet connect to the ML pipeline, serve predictions or load geospatial layers. No files outside `frontend/` were changed.
-
-## Browser checks
-
-With `npm run dev` running and Chromium installed:
-
-```bash
-npm run verify:browser
-```
-
-The script checks routes, direct reload, client-side CTA navigation, keyboard menu behavior, seven viewport sizes, reduced motion, asset errors and automated axe WCAG AA rules. Screenshots are saved to the ignored `qa-results/` directory. Automated checks do not replace a full manual accessibility audit.
-
-Set `CHROMIUM_PATH` if Chromium is elsewhere. Set `QA_BASE_URL=http://127.0.0.1:4173` to test the production preview instead.
-
-## Assets and hosting
-
-See [ASSETS.md](./ASSETS.md) for the background photo source, license and font credits. The supplied design reference was used only as visual guidance.
-
-For the current Cloudflare Pages Direct Upload preparation, follow [MAP_HOSTING.md](./MAP_HOSTING.md). Restore the existing ignored map assets before building; `npm run build` now runs read-only map preflights before and after Vite. Serve the complete `dist/` artifact. Explicit application rewrites preserve deep links, while a static `404.html` keeps missing `/generated-data/*` files from becoming successful SPA responses. Do not add a blanket fallback for map assets. Deployment remains a separate manual action; no npm script uploads or publishes the site.
+See [MAP_EXPLORER.md](MAP_EXPLORER.md), [LOCATION_INSPECTION.md](LOCATION_INSPECTION.md), [DISTRICTS.md](DISTRICTS.md), [ABOUT.md](ABOUT.md), [OFFICIAL_PORTAL.md](OFFICIAL_PORTAL.md) and [ASSETS.md](ASSETS.md) for feature/configuration details and image/font credits. [MAP_HOSTING.md](MAP_HOSTING.md) retains the deferred Cloudflare preparation; no hosting or Supabase changes are needed for public local map setup.
