@@ -319,6 +319,13 @@ def run():
     state = read_state()
     history, lat, lon = load_history()
 
+    # Snapshot the newest observation BEFORE adding new rainfall.
+    previous_history_latest = (
+        datetime.fromisoformat(max(history))
+        if history
+        else None
+    )
+
     errors = []
     rain_threshold = threshold()
 
@@ -496,51 +503,59 @@ def run():
         and -0.5 <= age_hours <= MAX_AGE_HOURS
     )
 
-    # Evaluate newly downloaded observations chronologically.
+    # Evaluate only observations newer than the last evaluated one.
+    # Dry observations must be consecutive 30-minute granules.
+    last_evaluated_raw = state.get("last_storm_evaluated_utc")
+    last_evaluated = (
+        datetime.fromisoformat(last_evaluated_raw)
+        if last_evaluated_raw
+        else previous_history_latest
+    )
+
+    if last_evaluated_raw is None and last_evaluated is not None:
+        state["last_storm_evaluated_utc"] = last_evaluated.isoformat()
+
     for ts, maximum in sorted(new_obs):
 
-        if (
-            maximum is None
-            or rain_threshold is None
-        ):
+        if last_evaluated is not None and ts <= last_evaluated:
             continue
+
+        # A missing half-hour interval breaks a consecutive dry streak.
+        consecutive = (
+            last_evaluated is not None
+            and ts - last_evaluated == timedelta(minutes=30)
+        )
+
+        if state.get("storm_active") and not consecutive:
+            state["consecutive_dry_observations"] = 0
+
+        # Missing or invalid rainfall cannot count as dry.
+        if maximum is None or rain_threshold is None:
+            state["consecutive_dry_observations"] = 0
+            last_evaluated = ts
+            state["last_storm_evaluated_utc"] = ts.isoformat()
+            continue
+
+        last_evaluated = ts
+        state["last_storm_evaluated_utc"] = ts.isoformat()
 
         if maximum >= rain_threshold:
             state["storm_active"] = True
-            state[
-                "consecutive_dry_observations"
-            ] = 0
+            state["consecutive_dry_observations"] = 0
 
         elif state.get("storm_active"):
-
-            state[
-                "consecutive_dry_observations"
-            ] = (
-                state.get(
-                    "consecutive_dry_observations",
-                    0
-                ) + 1
+            state["consecutive_dry_observations"] = (
+                state.get("consecutive_dry_observations", 0) + 1
             )
 
             dry_required = max(
                 1,
-                int(
-                    os.getenv(
-                        "DRY_OBSERVATIONS_TO_RESET",
-                        "6"
-                    )
-                )
+                int(os.getenv("DRY_OBSERVATIONS_TO_RESET", "6"))
             )
 
-            if (
-                state[
-                    "consecutive_dry_observations"
-                ] >= dry_required
-            ):
+            if state["consecutive_dry_observations"] >= dry_required:
                 state["storm_active"] = False
-                state[
-                    "consecutive_dry_observations"
-                ] = 0
+                state["consecutive_dry_observations"] = 0
 
     if rain_threshold is None:
         state["storm_active"] = False
@@ -561,12 +576,35 @@ def run():
         )
     )
 
+    # Preserve pending processing across cloud executions.
+    pending_processing = bool(
+        state.get("pending_full_processing", False)
+    )
+
+    # Newly collected observations require processing.
+    if new_obs:
+        pending_processing = True
+
+    state["pending_full_processing"] = pending_processing
+
+    daily_due = (
+        state.get("last_full_run_local_date")
+        != today
+    )
+
+    # Failed full-pipeline runs must retry even after storm mode ends.
+    # New observations outside monsoon wait for the next daily run.
+    retry_pending = bool(
+        state.get("full_pipeline_retry_pending", False)
+    )
+
     due = (
-        season
-        or active
-        or state.get(
-            "last_full_run_local_date"
-        ) != today
+        daily_due
+        or retry_pending
+        or (
+            (season or active)
+            and pending_processing
+        )
     )
 
     full_success = False
@@ -600,7 +638,52 @@ def run():
                     "Pipeline reported processing failures"
                 )
 
+            download_result = pipeline_result.get(
+                "download_result"
+            )
+
+            if not isinstance(download_result, dict):
+                raise RuntimeError(
+                    "Pipeline did not return download details"
+                )
+
+            if not download_result.get(
+                "download_enabled", False
+            ):
+                raise RuntimeError(
+                    "Pipeline downloads were disabled"
+                )
+
+            pending_count = int(
+                download_result.get("pending", -1)
+            )
+            selected_count = int(
+                download_result.get("selected", -1)
+            )
+
+            if (
+                pending_count < 0
+                or selected_count < 0
+                or selected_count > pending_count
+            ):
+                raise RuntimeError(
+                    "Invalid pipeline backlog counts"
+                )
+
             full_success = True
+
+            # Preserve pending work when the download cap
+            # leaves additional observations for later runs.
+            backlog_remaining = (
+                pending_count > selected_count
+            )
+
+            state["pending_full_processing"] = (
+                backlog_remaining
+            )
+            state["full_pipeline_retry_pending"] = (
+                backlog_remaining
+            )
 
             state[
                 "last_full_run_local_date"
@@ -611,6 +694,8 @@ def run():
             ] = now.isoformat()
 
         except Exception as exc:
+            # Retry failures on the next invocation, regardless of mode.
+            state["full_pipeline_retry_pending"] = True
             errors.append(
                 f"full_pipeline: {exc}"
             )
@@ -628,8 +713,20 @@ def run():
         backlog_before - backlog_processed
     )
 
+    monitoring_health = (
+        "unavailable"
+        if latest is None
+        else (
+            "current"
+            if fresh
+            else "stale"
+        )
+    )
+
     status = {
         "checked_at_utc": now.isoformat(),
+        "monitoring_health": monitoring_health,
+        "storm_state_is_current": bool(fresh),
         "mode": mode,
         "monsoon": season,
         "storm_active": active,
@@ -653,6 +750,27 @@ def run():
         "rainfall_windows": windows,
         "full_pipeline_attempted": due,
         "full_pipeline_succeeded": full_success,
+        "pending_full_processing":
+            bool(state.get("pending_full_processing", False)),
+        "full_pipeline_retry_pending":
+            bool(state.get("full_pipeline_retry_pending", False)),
+        "full_pipeline_backlog_remaining":
+            (
+                max(
+                    0,
+                    int(pipeline_result["download_result"]["pending"])
+                    - int(pipeline_result["download_result"]["selected"])
+                )
+                if (
+                    isinstance(pipeline_result, dict)
+                    and isinstance(
+                        pipeline_result.get("download_result"), dict
+                    )
+                    and pipeline_result["download_result"].get("pending") is not None
+                    and pipeline_result["download_result"].get("selected") is not None
+                )
+                else None
+            ),
         "pipeline_result": pipeline_result,
         "last_successful_full_run_utc":
             state.get("last_full_run_utc"),

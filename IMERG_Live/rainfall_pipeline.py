@@ -3,7 +3,7 @@ from pathlib import Path
 from datetime import datetime, timedelta, timezone
 import re
 from urllib.parse import urljoin, urlparse, unquote
-
+import time
 import requests
 from bs4 import BeautifulSoup
 
@@ -190,36 +190,93 @@ def discover_archive_files(session, day):
 
 
 def download_one_hdf5(session, filename, url):
-    """Download to .part, validate, then atomically publish to raw/."""
+    """Download HDF5 safely, retrying transient failures and invalid data."""
+
     destination = RAW_DIR / filename
+    temporary = RAW_DIR / (filename + ".part")
+
     if destination.exists() and validate_raw_hdf5(destination):
         print("Already valid locally:", filename)
         return False
 
-    temporary = RAW_DIR / (filename + ".part")
-    if temporary.exists():
-        temporary.unlink()  # Only remove an incomplete temporary download.
+    max_attempts = 3
 
-    try:
-        with session.get(url, stream=True, timeout=DOWNLOAD_TIMEOUT) as response:
-            response.raise_for_status()
-            content_type = response.headers.get("Content-Type", "").lower()
-            if "text/html" in content_type:
-                raise RuntimeError("NASA returned an HTML page, not HDF5 data")
-            with temporary.open("wb") as out:
-                for chunk in response.iter_content(chunk_size=1024 * 1024):
-                    if chunk:
-                        out.write(chunk)
+    for attempt in range(1, max_attempts + 1):
+        try:
+            if temporary.exists():
+                temporary.unlink()
 
-        if not validate_raw_hdf5(temporary):
-            raise RuntimeError("Downloaded file failed HDF5 validation")
+            print(
+                f"Downloading {filename} "
+                f"(attempt {attempt}/{max_attempts})"
+            )
 
-        temporary.replace(destination)
-        print("Downloaded and validated:", filename)
-        return True
-    finally:
-        if temporary.exists():
-            temporary.unlink()
+            with session.get(
+                url,
+                stream=True,
+                timeout=DOWNLOAD_TIMEOUT
+            ) as response:
+
+                response.raise_for_status()
+
+                content_type = response.headers.get(
+                    "Content-Type", ""
+                ).lower()
+
+                if "text/html" in content_type:
+                    raise RuntimeError(
+                        "NASA returned HTML instead of HDF5"
+                    )
+
+                with temporary.open("wb") as out:
+                    for chunk in response.iter_content(
+                        chunk_size=1024 * 1024
+                    ):
+                        if chunk:
+                            out.write(chunk)
+
+            if not validate_raw_hdf5(temporary):
+                raise ValueError(
+                    "Downloaded file failed HDF5 validation"
+                )
+
+            temporary.replace(destination)
+
+            print("Downloaded and validated:", filename)
+            return True
+
+        except (requests.exceptions.RequestException, ValueError) as error:
+
+            if isinstance(error, requests.exceptions.HTTPError):
+                response = error.response
+
+                status = (
+                    response.status_code
+                    if response is not None
+                    else None
+                )
+
+                if status not in (429, 500, 502, 503, 504):
+                    raise
+
+            if attempt == max_attempts:
+                raise RuntimeError(
+                    f"Download failed after {max_attempts} "
+                    f"attempts: {filename}"
+                ) from error
+
+            delay = 2 ** attempt
+
+            print(
+                f"Download error: {error}. "
+                f"Retrying in {delay} seconds..."
+            )
+
+            time.sleep(delay)
+
+        finally:
+            if temporary.exists():
+                temporary.unlink()
 
 
 def download_new_observations():
