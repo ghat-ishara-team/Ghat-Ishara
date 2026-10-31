@@ -14,7 +14,7 @@ npm run setup:maps
 npm run dev
 ```
 
-Open **http://127.0.0.1:5173/**. `feature/website` does not need to be merged into `main`. **The map Release is not published yet:** setup reuses verified local data, but a fresh clone fails clearly until the approved GitHub asset details and checksum are configured. See [CLONE_AND_RUN.md](CLONE_AND_RUN.md) for complete prerequisites, private-release access, optional LFS-download skipping, official-login limitations and troubleshooting.
+Open **http://127.0.0.1:5173/**. `feature/website` does not need to be merged into `main`. The published `maps-20261026` map asset is pinned by numeric asset ID and SHA-256. The activation changes must be present on the branch you clone; this task does not commit or push them. Setup downloads the public asset without a GitHub token, or reuses complete verified local data. See [CLONE_AND_RUN.md](CLONE_AND_RUN.md) for complete prerequisites, private-release access, optional LFS-download skipping, official-login limitations and troubleshooting.
 
 Generated maps are ignored and distributed separately from code. No source TIFFs, models, Python GIS environment or training datasets are needed to run the public website. Scores are static, experimental and uncalibrated, not event probabilities or operational landslide warnings. Basemap resources require external OpenFreeMap access.
 

@@ -1,6 +1,6 @@
 # Prepare a Cloudflare Pages Direct Upload release
 
-**Cloudflare deployment is deferred.** The current plan is GitHub clone-and-run distribution; follow [CLONE_AND_RUN.md](CLONE_AND_RUN.md) and [MAP_RELEASE.md](MAP_RELEASE.md). `npm run setup:maps` requires approved real release details (publication is still pending), or reuses an existing verified map dataset. This document retains the previously prepared hosting option; no deployment is performed by setup.
+**Cloudflare deployment is deferred.** The current plan is GitHub clone-and-run distribution; follow [CLONE_AND_RUN.md](CLONE_AND_RUN.md) and [MAP_RELEASE.md](MAP_RELEASE.md). `npm run setup:maps` uses the verified `maps-20261026` release pinned in the activation configuration, or reuses an existing verified map dataset. The activation changes must reach the branch teammates clone before that remote checkout uses the new pin. This document retains the previously prepared hosting option; no deployment is performed by setup.
 
 This is deployment preparation, not deployment. The existing local static datasets stay at the same website origin and keep their audited bytes, manifests and paths. No Wrangler dependency, Cloudflare account binding, upload, R2/Supabase Storage, map API, retraining or asset generation is included.
 

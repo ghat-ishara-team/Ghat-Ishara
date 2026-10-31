@@ -87,22 +87,102 @@ await test('public map distribution (temporary files only)', async t => {
       await fixture(file => patch(file, header(firstName, secondSize), secondAt), file => assert.rejects(verifyArchive(file), /Duplicate/))
     })
     await t.test('unconfigured release and mutable latest fail closed without network', async () => {
-      const actual = JSON.parse(await readFile(new URL('./github-release.json', import.meta.url)))
-      assert.throws(() => validateConfig(actual), /not configured/)
+      const unconfigured = { repository: 'shiragave2omkar-hub/Ghat-Ishara', releaseTag: null, assetId: null, assetName: null, url: null, sha256: null, bytes: null }
+      assert.throws(() => validateConfig(unconfigured), /not configured/)
       assert.throws(() => validateConfig({ ...config, releaseTag: 'latest' }), /not configured/)
       const publicDir = await freshPublic(); let requests = 0
-      await assert.rejects(setupMaps({ publicDir, config: actual, fetchImpl: () => { requests++; throw new Error('No network allowed') }, log: quiet }), /not configured/)
+      await assert.rejects(setupMaps({ publicDir, config: unconfigured, fetchImpl: () => { requests++; throw new Error('No network allowed') }, log: quiet }), /not configured/)
       assert.equal(requests, 0); await absent(publicDir)
+    })
+    await t.test('published release configuration pins the approved asset and rejects URL substitution', async () => {
+      const published = JSON.parse(await readFile(new URL('./github-release.json', import.meta.url)))
+      validateConfig(published)
+      assert.equal(published.releaseTag, 'maps-20261026'); assert.equal(published.assetId, 685423078)
+      assert.equal(published.assetName, archiveName); assert.equal(published.bytes, 149090816)
+      assert.equal(published.sha256, receipt.sha256)
+      assert.throws(() => validateConfig({ ...published, url: 'https://github.com/shiragave2omkar-hub/Ghat-Ishara/releases/latest/download/' + archiveName }), /not configured/)
+      assert.throws(() => validateConfig({ ...published, assetId: published.assetId + 1 }), /not configured/)
     })
     await t.test('successful pinned download, atomic install and idempotent reuse', async () => {
       const publicDir = await freshPublic(); let requests = 0
-      const fetchImpl = async () => { requests++; return response(bytes) }
+      const fetchImpl = async (url, options) => {
+        requests++; assert.equal(url, config.url); assert.equal(options.headers.Authorization, undefined); assert.equal(options.credentials, 'omit')
+        return response(bytes)
+      }
       assert.equal(await setupMaps({ publicDir, config, fetchImpl, log: quiet }), 'installed')
       assert.equal(await setupMaps({ publicDir, config: {}, fetchImpl: () => { throw new Error('Must not download') }, log: quiet }), 'reused')
       assert.equal(requests, 1)
       const checked = await inspectAssets(publicDir); await checkScores(publicDir, checked.numerical)
       assert.ok(!(await readdir(path.dirname(publicDir))).some(name => name.startsWith('.map-setup')))
       await rm(path.dirname(publicDir), { recursive: true })
+    })
+    await t.test('parallel byte ranges preserve every byte, cap concurrency and install exact district scores', async () => {
+      const publicDir = await freshPublic(); const requests = []; let active = 0; let peak = 0
+      const fetchImpl = async (url, options) => {
+        assert.equal(options.credentials, 'omit')
+        if (url === config.url) {
+          assert.equal(options.headers.Authorization, 'Bearer fixture-range-token')
+          return new Response(null, { status: 302, headers: { location: 'https://release-assets.githubusercontent.com/range-fixture' } })
+        }
+        assert.equal(options.headers.Authorization, undefined)
+        const match = /^bytes=(\d+)-(\d+)$/.exec(options.headers.Range); assert.ok(match)
+        const [start, end] = match.slice(1).map(Number); requests.push([start, end]); active++; peak = Math.max(peak, active)
+        await new Promise(resolve => setTimeout(resolve, 1)); active--
+        return new Response(bytes.subarray(start, end + 1), { status: 206, headers: { 'content-range': `bytes ${start}-${end}/${bytes.length}`, 'content-length': String(end - start + 1) } })
+      }
+      assert.equal(await setupMaps({ publicDir, config, fetchImpl, token: 'fixture-range-token', log: quiet }), 'installed')
+      assert.ok(peak <= 4 && peak > 1)
+      const sorted = requests.sort((a, b) => a[0] - b[0]); assert.equal(sorted[0][0], 0)
+      for (let index = 1; index < sorted.length; index++) assert.equal(sorted[index][0], sorted[index - 1][1] + 1)
+      assert.equal(sorted.at(-1)[1], bytes.length - 1)
+      const checked = await inspectAssets(publicDir); await checkScores(publicDir, checked.numerical)
+      await rm(path.dirname(publicDir), { recursive: true })
+    })
+    await t.test('interrupted streams and transient fetch errors retry only their bounded ranges', async () => {
+      const publicDir = await freshPublic(); const attempts = new Map(); const logs = []
+      const fetchImpl = async (_url, options) => {
+        const [start, end] = /^bytes=(\d+)-(\d+)$/.exec(options.headers.Range).slice(1).map(Number)
+        const count = (attempts.get(start) ?? 0) + 1; attempts.set(start, count)
+        if (start === 65536 + 4 * 1024 * 1024 && count === 1) throw new TypeError('fixture temporary fetch interruption')
+        const headers = { 'content-range': `bytes ${start}-${end}/${bytes.length}`, 'content-length': String(end - start + 1) }
+        if (start === 65536 && count === 1) {
+          let sent = false
+          return new Response(new ReadableStream({ pull(controller) {
+            if (sent) controller.error(new TypeError('fixture terminated stream'))
+            else { sent = true; controller.enqueue(bytes.subarray(start, start + 4096)) }
+          } }), { status: 206, headers })
+        }
+        return new Response(bytes.subarray(start, end + 1), { status: 206, headers })
+      }
+      assert.equal(await setupMaps({ publicDir, config, fetchImpl, log: message => logs.push(message) }), 'installed')
+      assert.equal(attempts.get(65536), 2); assert.equal(attempts.get(65536 + 4 * 1024 * 1024), 2)
+      assert.equal(logs.filter(message => message.startsWith('Retrying interrupted')).length, 2)
+      const checked = await inspectAssets(publicDir); await checkScores(publicDir, checked.numerical)
+      await rm(path.dirname(publicDir), { recursive: true })
+    })
+    await t.test('permanent network failures stop at three attempts, clean staging and hide request values', async () => {
+      const publicDir = await freshPublic(); let attempts = 0; const logs = []
+      const sensitiveFixture = 'fixture-token-must-never-be-printed'
+      await assert.rejects(setupMaps({ publicDir, config, token: sensitiveFixture, log: message => logs.push(message), fetchImpl: async () => {
+        attempts++; throw new TypeError(`fixture invalid header containing ${sensitiveFixture}`)
+      } }), error => { assert.match(error.message, /network failure/); assert.ok(!error.message.includes(sensitiveFixture)); return true })
+      assert.equal(attempts, 3); assert.ok(logs.every(message => !message.includes(sensitiveFixture)))
+      await absent(publicDir)
+    })
+    for (const mode of ['wrong-content-range', 'short-range', 'encoded-range', 'ignored-later-range', 'corrupt-range']) await t.test(`${mode} fails safely without installed maps`, async () => {
+      const publicDir = await freshPublic()
+      const fetchImpl = async (_url, options) => {
+        const match = /^bytes=(\d+)-(\d+)$/.exec(options.headers.Range)
+        const [start, end] = match.slice(1).map(Number)
+        const payload = Buffer.from(bytes.subarray(start, end + 1))
+        if (mode === 'corrupt-range' && start === 0) payload[512] ^= 1
+        const headers = { 'content-range': `bytes ${start}-${end}/${bytes.length}`, 'content-length': String(payload.length) }
+        if (mode === 'wrong-content-range') headers['content-range'] = `bytes ${start + 1}-${end}/${bytes.length}`
+        if (mode === 'encoded-range') headers['content-encoding'] = 'gzip'
+        return new Response(mode === 'short-range' ? payload.subarray(0, 4096) : payload, { status: mode === 'ignored-later-range' && start > 0 ? 200 : 206, headers })
+      }
+      await assert.rejects(setupMaps({ publicDir, config, fetchImpl, log: quiet }), /Content-Range|Incomplete download|Encoded byte ranges|HTTP 200|SHA-256 mismatch/)
+      await absent(publicDir)
     })
     for (const [label, fetchImpl, pattern, overrides] of [
       ['network failure', async () => { throw new Error('fixture network failure') }, /network failure/],
@@ -136,12 +216,13 @@ await test('public map distribution (temporary files only)', async t => {
       await absent(publicDir)
     })
     await t.test('GitHub redirects do not forward private access tokens to CDN', async () => {
-      const calls = []; const destination = path.join(temporary, 'redirect-download')
-      await download(config, destination, { token: 'fixture-token', fetchImpl: async (url, options) => {
+      const calls = []; const progress = []; const destination = path.join(temporary, 'redirect-download')
+      await download(config, destination, { token: 'fixture-token', log: message => progress.push(message), fetchImpl: async (url, options) => {
         calls.push({ url, options })
         return calls.length === 1 ? new Response(null, { status: 302, headers: { location: 'https://release-assets.githubusercontent.com/fixture' } }) : response(bytes)
       } })
       assert.equal(calls[0].options.headers.Authorization, 'Bearer fixture-token'); assert.equal(calls[1].options.headers.Authorization, undefined)
+      assert.ok(progress.some(message => message.endsWith('(100%).'))); assert.ok(progress.every(message => !message.includes('fixture-token')))
       assert.equal(sha256(await readFile(destination)), receipt.sha256); await rm(destination)
     })
     await t.test('incomplete existing data is preserved and never overwritten', async () => {

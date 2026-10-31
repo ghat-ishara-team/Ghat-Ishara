@@ -1,6 +1,6 @@
 # Clone and run GHAT ISHARA
 
-The public website runs locally with real, static susceptibility overlays and original Float32 score inspection for Pune, Raigad, Ratnagiri and Satara. **Distribution is prepared, but the GitHub Release is not published yet.** A fresh clone's `setup:maps` will stop with a release-configuration message until an approved asset is uploaded and its actual details are pinned. It never downloads an unverified substitute. An existing complete verified dataset can already be reused.
+The public website runs locally with real, static susceptibility overlays and original Float32 score inspection for Pune, Raigad, Ratnagiri and Satara. The published [`maps-20261026` release](https://github.com/shiragave2omkar-hub/Ghat-Ishara/releases/tag/maps-20261026) is pinned by numeric asset ID, exact byte size and SHA-256 in the activation configuration. Setup never downloads an unverified substitute. **These activation changes must be present on the branch you clone:** this task does not commit or push them. A real anonymous clone, with these pending activation changes applied, passed dependency installation, map download, verified reuse, build and all four districts' browser score checks; see [MAP_RELEASE.md](MAP_RELEASE.md) for its verification record.
 
 ## Prerequisites
 
@@ -23,7 +23,7 @@ Open **http://127.0.0.1:5173/**. If the port is occupied, Vite may print a diffe
 
 Original ML rasters/predictors/models are not required. If Git LFS is installed, an ordinary clone may download large original source files tracked by the repository. To skip these unnecessary LFS downloads, optionally prefix the clone command with `GIT_LFS_SKIP_SMUDGE=1` (bash). This does not replace `setup:maps`.
 
-For a private release, make a GitHub access token available as `GH_TOKEN` (or `GITHUB_TOKEN`) through your secure shell environment, with access to the release repository. Never put it in frontend `.env` files, a `VITE_` variable, the JSON configuration, command output or Git. The downloader sends it only to GitHub's API, never to redirected asset CDN hosts. Repository Git access and API token access are separate. No token is needed for a public release.
+The verified repository and release are currently public, so no GitHub token or GitHub CLI installation is needed to run setup. If access later becomes private, make a GitHub access token available as `GH_TOKEN` (or `GITHUB_TOKEN`) through your secure shell environment, with access to the release repository. Never put it in frontend `.env` files, a `VITE_` variable, the JSON configuration, command output or Git. The downloader sends it only to GitHub's API, never to redirected asset CDN hosts. Repository Git access and API token access are separate; `gh auth login` alone does not configure the Node downloader. No token is needed for a public release.
 
 ## What setup verifies
 
@@ -34,7 +34,7 @@ public/generated-data/susceptibility/  # 1,535 PNG tiles + 2 JSON metadata files
 public/generated-data/scores/          # 879 gzip Float32 chunks + 2 JSON metadata files
 ```
 
-The approved archive has fixed paths/build IDs and unchanged bytes. Setup checks its pinned SHA-256 and byte length, strict regular-file archive structure, both pinned manifests, exact file inventory and whole-tree fingerprint. Before installation, the existing map preflight checks every PNG and numerical chunk, source hashes and four districts. All six stored exact-score references are checked, including one per district, valid zero and NoData. Only then is the complete directory installed. It does not run Python, ML inference or a map generator.
+The approved archive has fixed paths/build IDs and unchanged bytes. Setup downloads verified byte ranges with at most four concurrent requests when supported (or one full stream when ranges are ignored). It checks the complete archive's pinned SHA-256 and byte length, strict regular-file archive structure, both pinned manifests, exact file inventory and whole-tree fingerprint. Before installation, the existing map preflight checks every PNG and numerical chunk, source hashes and four districts. All six stored exact-score references are checked, including one per district, valid zero and NoData. Only then is the complete directory installed. It does not run Python, ML inference or a map generator.
 
 Running setup again validates and reuses complete existing data without downloading or rewriting it. Incomplete/corrupt/unexpected existing data is **preserved and refused**, not automatically repaired or deleted. This prevents a download failure from damaging working files.
 
@@ -55,10 +55,11 @@ npm run test:map
 npm run test:scores
 ```
 
-- **Release not configured:** publication is still pending. Ask the maintainer to finish [MAP_RELEASE.md](MAP_RELEASE.md); do not invent a URL/checksum or bypass verification.
-- **HTTP 404/403 or download failure:** check internet, actual release publication, repository permissions and token access. Retry setup after resolving access. It starts a fresh verified download rather than resuming an untrusted partial file.
+- **Release not configured:** your checkout may predate the activation changes, or the reviewed configuration is missing/invalid. Ask the maintainer for the branch containing the activation changes; see [MAP_RELEASE.md](MAP_RELEASE.md). Do not invent a URL/checksum or bypass verification.
+- **Slow connection:** setup reports received MiB/percentage approximately every 30 seconds while data arrives, with a one-hour total deadline for the 149 MB archive. It validates the entire file before installation; interrupted retries start over.
+- **HTTP 401/403/404 or download failure:** check internet, actual release publication, repository permissions and token access. Retry setup after resolving access. Transient interruptions of individual ranges retry up to three times during the same transfer. A failed or cancelled setup removes its owned temporary data; rerunning starts a new verified download rather than trusting an unknown partial file.
 - **Checksum/length/integrity mismatch:** stop; do not update pins to fit the failed download. The maintainer must compare the published asset to the independently verified local archive. No new map data is installed.
-- **Existing incomplete map data:** stop Vite. Preserve the entire `frontend/public/generated-data` by moving it to a backup directory **outside `public/`**, then rerun setup after release configuration is complete. Do not merge old and new assets, regenerate chunks or remove source ML files. Moving it back restores the old state if needed.
+- **Existing incomplete map data:** stop Vite. Preserve the entire `frontend/public/generated-data` by moving it to a backup directory **outside `public/`**, then rerun setup using the verified release configuration. Do not merge old and new assets, regenerate chunks or remove source ML files. Moving it back restores the old state if needed.
 - **Interrupted setup:** normal errors, SIGINT and SIGTERM remove owned temporary downloads/staging and the setup lock. SIGKILL, power loss or a crash can leave `frontend/.map-setup-*` and `.map-setup.lock`. Confirm no setup is running before manually removing only those stale ignored items. Never remove `public/generated-data` as cleanup. There is no automatic deletion of unknown stale directories.
 - **Missing overlays or unavailable scores:** run source preflight; both sibling trees are needed. Numerical null-index entries mean NoData and intentionally have no file. An unavailable fetch is not a score of zero. If preflight passes, inspect browser network errors and WebGL support; external basemap connectivity is separate.
 - **Build failure:** use the required Node/npm versions, run `npm ci` from `frontend/`, then setup and preflight. `npm run build` deliberately fails when maps are missing; direct `vite build` bypasses that protection. Read the first reported failure. Never copy environment secrets into `public/`.
