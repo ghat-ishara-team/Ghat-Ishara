@@ -10,7 +10,7 @@ Implemented: password sign-in, invitation acceptance/password setup, auth state 
 
 Tested locally: frontend TypeScript and production build; Deno type-check plus seven offline Edge handler tests; 65 PostgreSQL migration/RLS/permission/bootstrap checks using PGlite and a **test-only stub of `auth.users`/`auth.uid()`** with broad Supabase-style default grants; four negative public-environment build probes and browser-bundle scanning; public navigation and unconfigured official pages in Chromium, route redirects, responsive layouts and automated accessibility checks. These tests do not prove hosted Supabase integration. See [the pre-migration review](./AUTH_REVIEW.md) for findings and fixes.
 
-**Live project status is unverified.** Public URL/publishable-key settings are present in the ignored `.env.local`; that file was left unchanged. Their presence does not verify the hosted database, function, SMTP or Auth settings. No project migrations, user creation, invitations or live sign-in were performed during the review. Live login, token expiry/replay, password setup, SMTP and hosted API/Edge enforcement must be tested against a dedicated Supabase test project before deployment. MFA enrollment/challenge UI and password recovery are not included in this milestone.
+**Current onboarding status:** local Supabase login has been tested with the correct ignored `.env.local` and a provisioned official account. See [CLONE_AND_RUN.md](CLONE_AND_RUN.md) for teammate setup. Each developer needs their own local stack and matching public URL/key; loopback URLs do not reach another teammate's computer. **Hosted Supabase authentication has not yet been finalized.** Local success does not verify hosted database, function, SMTP or Auth settings. Hosted login, token expiry/replay, password setup, SMTP and hosted API/Edge enforcement must be tested against a dedicated Supabase test project before deployment. MFA enrollment/challenge UI and password recovery are not included in this milestone. The review/test records below describe earlier implementation checks, not additional live actions in this documentation audit.
 
 ## Architecture and security boundaries
 
@@ -102,7 +102,7 @@ npx supabase functions deploy invite-official
 
 Retain `verify_jwt = true` in the function configuration; do not deploy with `--no-verify-jwt`. The function additionally verifies the user through Auth and checks live DB permissions. If your project's signing-key configuration needs gateway changes, review the official Edge authentication guidance and test token validation rather than disabling verification as a workaround.
 
-For an isolated local Supabase environment with Docker and the CLI installed, `npx supabase start` runs the local stack and applies the local configuration. Configure Vite and function serving with that stack's **local** values; never use production keys for local tests. The CLI/local Auth stack was not available/run in this implementation, so this path still needs integration verification.
+For an isolated local Supabase environment with Docker and the CLI installed, `npx supabase start` runs the local stack and applies the local configuration. Configure Vite and function serving with that stack's **local** values; never use production keys for local tests. Local login has since passed with matching configuration and a provisioned account; this does not finalize hosted authentication or establish that every invitation/Edge scenario has passed.
 
 ## 4. Manually bootstrap the first administrator
 

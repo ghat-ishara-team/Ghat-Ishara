@@ -7,14 +7,16 @@ A React, TypeScript and Vite experimental landslide susceptibility platform for 
 Requires Node.js 22.12+ and npm 10+, Git, internet and repository access if private.
 
 ```bash
-git clone --branch feature/website https://github.com/shiragave2omkar-hub/Ghat-Ishara.git
+GIT_LFS_SKIP_SMUDGE=1 git clone --branch feature/website https://github.com/shiragave2omkar-hub/Ghat-Ishara.git
 cd Ghat-Ishara/frontend
 npm ci
 npm run setup:maps
 npm run dev
 ```
 
-Open **http://127.0.0.1:5173/**. `feature/website` does not need to be merged into `main`. The published `maps-20261026` map asset is pinned by numeric asset ID and SHA-256. The activation changes must be present on the branch you clone; this task does not commit or push them. Setup downloads the public asset without a GitHub token, or reuses complete verified local data. See [CLONE_AND_RUN.md](CLONE_AND_RUN.md) for complete prerequisites, private-release access, optional LFS-download skipping, official-login limitations and troubleshooting.
+Open **http://127.0.0.1:5173/**, or the address Vite prints. `feature/website` does not need to be merged into `main`. LFS skipping avoids unnecessary ML dataset downloads and does not replace `setup:maps`. The published `maps-20261026` map asset is pinned by numeric asset ID and SHA-256. Setup downloads the public asset without a GitHub token, or reuses complete verified local data. Public pages, maps and numerical inspection require no Supabase configuration or `.env.local`. See [CLONE_AND_RUN.md](CLONE_AND_RUN.md) for complete prerequisites, private-release access, local official login and troubleshooting.
+
+Local official login has been tested with a correctly configured `.env.local`, running local Supabase and a provisioned official account. Each teammate needs the public URL/key for their own stack; another developer's `localhost` URL points to the teammate's own computer. **Hosted Supabase authentication has not yet been finalized.** A shared hosted login is not ready for onboarding. Never put server keys or passwords in frontend configuration or Git.
 
 Generated maps are ignored and distributed separately from code. No source TIFFs, models, Python GIS environment or training datasets are needed to run the public website. Scores are static, experimental and uncalibrated, not event probabilities or operational landslide warnings. Basemap resources require external OpenFreeMap access.
 

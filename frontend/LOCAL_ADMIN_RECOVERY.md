@@ -40,10 +40,10 @@ Steps 3–4 below require explicit approval before the assistant executes them. 
 
 1. **Do not open any invitation yet.** Close the old acceptance page and use a fresh private browser session later. Keep only the newest email. Do not manually edit Auth timestamps, confirm the email, set passwords through SQL, reset the database or delete the user.
 
-2. From the frontend directory, optionally repeat the **read-only** inspection:
+2. From the repository root, optionally repeat the **read-only** inspection:
 
    ```bash
-   cd /home/jack_1213/GHAT_ISHARA_ML/frontend
+   cd frontend
    node --env-file=supabase/bootstrap.env.local supabase/scripts/recover-first-admin-local.mjs --inspect
    ```
 
