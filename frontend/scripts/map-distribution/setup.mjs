@@ -11,6 +11,8 @@ export function validateConfig(config) {
   return config
 }
 const CDN = new Set(['release-assets.githubusercontent.com', 'objects.githubusercontent.com', 'github-releases.githubusercontent.com'])
+// GitHub canonicalizes this repository's named API route to its stable numeric ID.
+const REPOSITORY_ID = '1424684479'
 // Requests are bound to the pinned asset; range responses never weaken archive checks.
 const RANGE_BYTES = 1024 * 1024
 const RANGE_CONCURRENCY = 4
@@ -36,8 +38,12 @@ export async function download(config, destination, { fetchImpl = fetch, signal,
       if ([301, 302, 303, 307, 308].includes(response.status)) {
         await response.body?.cancel()
         assert.ok(redirects < 5, 'Too many download redirects')
-        const next = new URL(response.headers.get('location'), url)
-        assert.ok(next.protocol === 'https:' && !next.username && !next.password && !next.hash && !next.port && CDN.has(next.hostname), 'Unsafe download redirect')
+        let next
+        try { next = new URL(response.headers.get('location'), url) }
+        catch { throw new Error('Unsafe download redirect') }
+        const canonicalAsset = url.hostname === 'api.github.com' && next.hostname === 'api.github.com' &&
+          next.pathname === `/repositories/${REPOSITORY_ID}/releases/assets/${config.assetId}` && !next.search
+        assert.ok(next.protocol === 'https:' && !next.username && !next.password && !next.hash && !next.port && (CDN.has(next.hostname) || canonicalAsset), 'Unsafe download redirect')
         url = next; continue
       }
       return { response, url: url.href }

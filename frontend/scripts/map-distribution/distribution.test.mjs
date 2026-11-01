@@ -8,6 +8,80 @@ import { setupMaps, validateConfig, download } from './setup.mjs'
 import { frontend, inspectAssets, sha256, release } from '../map-hosting/assets.mjs'
 
 const quiet = () => {}
+await test('GitHub asset redirect boundaries (temporary files only)', async t => {
+  const temporary = await mkdtemp(path.join(os.tmpdir(), 'ghat-redirects-'))
+  const bytes = Buffer.alloc(2048, 42)
+  const config = { repository: 'shiragave2omkar-hub/Ghat-Ishara', releaseTag: 'fixture-only', assetId: 1, assetName: archiveName, url: 'https://api.github.com/repos/shiragave2omkar-hub/Ghat-Ishara/releases/assets/1', sha256: sha256(bytes), bytes: bytes.length }
+  const canonicalPath = '/repositories/1424684479/releases/assets/1'
+  const canonical = `https://api.github.com${canonicalPath}`
+  const token = 'fixture-secret-token'
+  let serial = 0
+  try {
+    for (const [index, host] of ['release-assets.githubusercontent.com', 'objects.githubusercontent.com', 'github-releases.githubusercontent.com'].entries()) {
+      await t.test(`canonical API redirect then ${host} preserves checks and strips authorization`, async () => {
+        const calls = []; const logs = []
+        const destination = path.join(temporary, `download-${serial++}`)
+        await download(config, destination, { token, log: message => logs.push(message), fetchImpl: async (url, options) => {
+          calls.push(url)
+          assert.equal(options.redirect, 'manual'); assert.equal(options.credentials, 'omit')
+          if (calls.length <= 2) {
+            assert.equal(options.headers.Authorization, `Bearer ${token}`)
+            assert.equal(url, calls.length === 1 ? config.url : canonical)
+            return new Response(null, { status: calls.length === 1 ? 301 : 302, headers: { location: calls.length === 1 ? (index === 0 ? canonicalPath : canonical) : `https://${host}/fixture?signature=fixture-signed-value` } })
+          }
+          assert.equal(new URL(url).hostname, host)
+          assert.equal(options.headers.Authorization, undefined)
+          return new Response(bytes, { headers: { 'content-length': String(bytes.length) } })
+        } })
+        assert.equal(calls.length, 3)
+        assert.deepEqual(await fileDigest(destination), { bytes: bytes.length, sha256: config.sha256 })
+        assert.ok(logs.every(message => !message.includes(token) && !message.includes('fixture-signed-value')))
+      })
+    }
+    for (const location of [
+      'https://evil.example/maps.tar',
+      'https://release-assets.githubusercontent.com.evil.example/maps.tar',
+      'http://release-assets.githubusercontent.com/maps.tar',
+      `http://api.github.com${canonicalPath}`,
+      'https://fixture-secret-token@release-assets.githubusercontent.com/maps.tar',
+      `https://user:fixture-secret-token@api.github.com${canonicalPath}`,
+      'https://release-assets.githubusercontent.com:444/maps.tar',
+      `https://api.github.com:444${canonicalPath}`,
+      'https://release-assets.githubusercontent.com/maps.tar#fragment',
+      `https://api.github.com${canonicalPath}#fragment`,
+      `https://api.github.com${canonicalPath}?access_token=fixture-secret-token`,
+      'https://api.github.com/repositories/999/releases/assets/1',
+      'https://api.github.com/repositories/1424684479/releases/assets/2',
+      'https://api.github.com/user',
+      'https://api.github.com/repos/other/repository/releases/assets/1',
+      'https://[invalid-fixture-secret-token',
+    ]) await t.test(`unsafe redirect fixture ${serial} is rejected before a second request`, async () => {
+      let calls = 0; const logs = []
+      await assert.rejects(download(config, path.join(temporary, `download-${serial++}`), { token, log: message => logs.push(message), fetchImpl: async () => {
+        calls++
+        return new Response(null, { status: 302, headers: { location } })
+      } }), error => { assert.equal(error.message, 'Unsafe download redirect'); return true })
+      assert.equal(calls, 1); assert.deepEqual(logs, [])
+    })
+    await t.test('a CDN cannot redirect back to an API endpoint and receive credentials', async () => {
+      let calls = 0
+      await assert.rejects(download(config, path.join(temporary, `download-${serial++}`), { token, fetchImpl: async (_url, options) => {
+        calls++
+        if (calls === 2) assert.equal(options.headers.Authorization, undefined)
+        return new Response(null, { status: 302, headers: { location: calls === 1 ? 'https://release-assets.githubusercontent.com/fixture' : canonical } })
+      } }), /Unsafe download redirect/)
+      assert.equal(calls, 2)
+    })
+    await t.test('canonical redirect loops remain bounded', async () => {
+      let calls = 0
+      await assert.rejects(download(config, path.join(temporary, `download-${serial++}`), { fetchImpl: async () => {
+        calls++
+        return new Response(null, { status: 301, headers: { location: canonical } })
+      } }), /Too many download redirects/)
+      assert.equal(calls, 6)
+    })
+  } finally { await rm(temporary, { recursive: true, force: true }) }
+})
 await test('public map distribution (temporary files only)', async t => {
   const temporary = await mkdtemp(path.join(os.tmpdir(), 'ghat-distribution-'))
   let receipt; let archive; let bytes; let config; let serial = 0
