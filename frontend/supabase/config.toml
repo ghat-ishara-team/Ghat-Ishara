@@ -1,0 +1,19 @@
+project_id = "ghat-ishara-official-portal"
+
+[auth]
+site_url = "http://127.0.0.1:5173"
+additional_redirect_urls = ["http://127.0.0.1:5173/official/accept-invite", "http://127.0.0.1:4173/official/accept-invite"]
+enable_signup = false
+minimum_password_length = 12
+
+[auth.email]
+enable_signup = true
+enable_confirmations = true
+otp_expiry = 3600
+
+[auth.email.template.invite]
+subject = "Your GHAT ISHARA official portal invitation"
+content_path = "./supabase/templates/invite.html"
+
+[functions.invite-official]
+verify_jwt = true

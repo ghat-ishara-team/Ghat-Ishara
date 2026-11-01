@@ -1,0 +1,91 @@
+import { Link } from 'react-router-dom'
+import { ArrowRight, BookOpen, Layers3, Map, Mountain, ScanLine } from 'lucide-react'
+import { colorScale, districtCatalog, districtMapURL } from '../map/config'
+import { foldDownload, historicalReport, predictorGroups, recordedCV, reportDownload } from './evidence'
+import './methodology.css'
+
+const chapters = [
+  ['workflow', 'Workflow'], ['inputs', '22 predictors'], ['samples', 'Samples & splitting'],
+  ['evaluation', 'Recorded evaluation'], ['scores', 'Map scores'], ['limitations', 'Limitations'], ['sources', 'Sources'],
+] as const
+const metrics = [
+  { key: 'auc', title: 'Mean ROC-AUC', explanation: 'How well scores separate the two recorded labels across thresholds.' },
+  { key: 'f1', title: 'Mean F1', explanation: 'A balance between precision and recall in the recorded folds.' },
+  { key: 'recall', title: 'Mean recall', explanation: 'The share of labelled landslide samples identified in each fold.' },
+  { key: 'precision', title: 'Mean precision', explanation: 'The share of positive predictions carrying a landslide label in each fold.' },
+] as const
+const gridSpacings = [...new Set(districtCatalog.map(item => `${item.resolution[0]} × ${item.resolution[1]} m`))].join(' / ')
+
+function SectionTitle({ number, title, id, eyebrow }: { number: string; title: string; id: string; eyebrow: string }) {
+  return <header className="method-section-title"><span className="method-section-number" aria-hidden="true">{number}</span><div><p className="eyebrow">{eyebrow}</p><h2 id={id}>{title}</h2></div></header>
+}
+
+export default function MethodologyPage() {
+  return <main id="main-content" tabIndex={-1} className="method-page page-width">
+    <header className="method-hero">
+      <div><p className="eyebrow">Methodology · Experimental research</p><h1>From landscape data<br /><span className="text-sage">to relative susceptibility.</span></h1><p className="method-lead">GHAT ISHARA uses a saved Random Forest model to explore where landscape conditions resemble those associated with recorded landslides. Here is how the maps are made, what the recorded results say, and where the evidence stops.</p><a className="method-inline-link" href="#workflow">Follow the workflow<ArrowRight size={18} aria-hidden="true" /></a></div>
+      <aside className="method-context" aria-labelledby="context-title"><Layers3 size={26} aria-hidden="true" /><h2 id="context-title">Three different scales</h2><dl><div><dt>250 m</dt><dd>Nominal background-sampling configuration; exact implementation unverified.</dd></div><div><dt>0.30°</dt><dd>Longitude/latitude blocks used to group samples geographically.</dd></div><div><dt>{gridSpacings}</dt><dd>Raster cell spacing, not measured predictive accuracy at that scale.</dd></div></dl></aside>
+    </header>
+    <div className="method-research-note"><Mountain size={21} aria-hidden="true" /><p><strong>Research interpretation, not an operational warning.</strong> These static, uncalibrated model scores are not event probabilities or real-time forecasts.</p></div>
+    <nav className="method-chapters" aria-label="Methodology sections">{chapters.map(([id, label]) => <a key={id} href={`#${id}`}>{label}</a>)}</nav>
+
+    <section id="workflow" className="method-section" aria-labelledby="workflow-title">
+      <SectionTitle number="01" id="workflow-title" eyebrow="The workflow" title="A model of landscape conditions." />
+      <ol className="method-workflow">
+        <li><span className="method-step">01</span><h3>Assemble samples</h3><p>Bring together labelled landslide locations, background locations and their recorded environmental inputs. Background does not mean independently confirmed safe terrain.</p></li>
+        <li><span className="method-step">02</span><h3>Record spatial evaluation</h3><p>Use geographic groups to separate samples. Five saved validation folds describe performance within this study inventory, with important limits on independence.</p></li>
+        <li><span className="method-step">03</span><h3>Apply the saved forest</h3><p>The selected 500-tree Random Forest combines 22 input columns to produce a relative susceptibility score for each usable raster cell.</p></li>
+        <li><span className="method-step">04</span><h3>Read the static map</h3><p>Inspect the original source-cell score alongside geographic context, missing-data areas and source metadata for each study district.</p></li>
+      </ol>
+    </section>
+
+    <section id="inputs" className="method-section" aria-labelledby="inputs-title">
+      <SectionTitle number="02" id="inputs-title" eyebrow="The selected experiment" title="500 trees. 22 recorded inputs." />
+      <div className="method-model"><BookOpen size={22} aria-hidden="true" /><div><p>The selected model is <code>{historicalReport.model}</code>. Its saved pipeline passes 21 numeric columns through and encodes lithology as categories before the forest. Earlier V1–V5 experiments are separate; their results are not used in this page’s summaries.</p><p>These groups organize the recorded column names. Original data-product versions, some units and index formulas remain unverified; the labels below do not establish how the upstream inputs were derived.</p></div></div>
+      <div className="method-predictors">{predictorGroups.map(group => <article className="method-panel" key={group.title} aria-labelledby={`group-${group.inputs[0][1]}`}><span className="method-count">{group.inputs.length} {group.inputs.length === 1 ? 'input' : 'inputs'}</span><h3 id={`group-${group.inputs[0][1]}`}>{group.title}</h3><p>{group.description}</p><details><summary>Recorded input names</summary><ul>{group.inputs.map(([label, name]) => <li key={name}><span>{label}</span><code data-predictor={name}>{name}</code></li>)}</ul></details></article>)}</div>
+    </section>
+
+    <section id="samples" className="method-section" aria-labelledby="samples-title">
+      <SectionTitle number="03" id="samples-title" eyebrow="Samples & geographic separation" title="Learning from a limited inventory." />
+      <p className="method-section-intro">The selected experiment’s local table contains 2,048 samples: 1,031 labelled landslides and 1,017 backgrounds. This roughly balanced sample does not represent how often landslides occur in the landscape.</p>
+      <div className="method-sample-grid">
+        <article className="method-panel"><span className="method-stat">1,605</span><h3>Development samples</h3><p>815 landslide-labelled and 790 background samples. This count matches the saved model’s training size and the total validation rows across its five recorded folds.</p></article>
+        <article className="method-panel"><span className="method-stat">440</span><h3>Recorded test samples</h3><p>216 landslide-labelled and 224 background samples. A historical report records test results, but its complete evaluation trail is missing.</p></article>
+        <article className="method-panel"><span className="method-stat">3</span><h3>Unassigned samples</h3><p>Three background samples in two groups have no inherited split assignment. They are outside both the 1,605 development samples and the recorded 440-sample test summary.</p></article>
+      </div>
+      <div className="method-two-column">
+        <article className="method-panel"><h3>What the nominal 250 m means</h3><p>The experiment uses a nominal 250 m background-sampling configuration associated with excluding locations near the landslide inventory. Its exact implementation is not verified: the original sampling code and inventory provenance are missing.</p><p>It is not the raster cell size, a guaranteed gap between training and validation points, or a safety distance.</p></article>
+        <article className="method-panel"><h3>How geographic splitting is evidenced</h3><p>Samples are grouped in 0.30° longitude/latitude blocks. Shared blocks in the controlled table inherit the original group-based test allocation and five spatial folds within the development set.</p><p>The original assignment scripts use a group shuffle split and stratified group five-fold splitting. The audit reproduced those original assignments; the controlled 250 m run’s own generating script is missing.</p></article>
+      </div>
+      <p className="method-caveat">No geographic group overlaps development and test in the selected table. Neighbouring blocks can still contain nearby or related observations. Geographic grouping does not guarantee independence between events or demonstrate performance in a new district or time period.</p>
+    </section>
+
+    <section id="evaluation" className="method-section" aria-labelledby="evaluation-title">
+      <SectionTitle number="04" id="evaluation-title" eyebrow="Recorded evaluation" title="What the saved folds tell us." />
+      <p className="method-section-intro">These are unweighted arithmetic means of the five recorded spatial-validation folds for the selected controlled 250 m, 22-input experiment, rounded to six decimals. They are not pooled test results or new evaluations.</p>
+      <dl className="method-metrics">{metrics.map(metric => <div key={metric.key}><dt>{metric.title}</dt><dd>{recordedCV.means[metric.key]}</dd><dd className="method-metric-explanation">{metric.explanation}</dd></div>)}</dl>
+      <p className="method-caveat">ROC-AUC is a ranking measure, not an accuracy percentage. These sample-based metrics do not establish population performance or calibrated probabilities. The selected run’s complete training/evaluation code and row-level validation predictions are missing, so the historical procedure cannot yet be fully independently reproduced.</p>
+      <details className="method-details"><summary>Inspect the five recorded folds</summary><div className="method-table-scroll" role="region" aria-label="Recorded spatial cross-validation fold results" tabIndex={0}><table><caption>Selected controlled 250 m experiment · recorded fold values, rounded to six decimals</caption><thead><tr><th scope="col">Fold</th><th scope="col">Rows</th><th scope="col">ROC-AUC</th><th scope="col">F1</th><th scope="col">Recall</th><th scope="col">Precision</th></tr></thead><tbody>{recordedCV.folds.map(row => <tr key={row.fold}><th scope="row">{row.fold}</th><td>{row.samples}</td><td>{row.auc.toFixed(6)}</td><td>{row.f1.toFixed(6)}</td><td>{row.recall.toFixed(6)}</td><td>{row.precision.toFixed(6)}</td></tr>)}</tbody></table></div><a className="method-inline-link" href={foldDownload} download="controlled_250m_22pred_spatial_cv_results.csv">Download recorded folds (CSV)<ArrowRight size={16} aria-hidden="true" /></a></details>
+      <aside className="method-historical" aria-labelledby="historical-title"><p className="eyebrow">Separate historical record</p><h3 id="historical-title">Reported final-test summary</h3><p>A saved report names the selected model and records {historicalReport.test_samples} test samples. Its generating evaluation code, test predictions and complete run provenance are missing. These historical figures are not fully independently reproducible and do not establish an untouched independent test.</p><details><summary>Show historical reported figures</summary><dl><div><dt>Reported test ROC-AUC</dt><dd>{historicalReport.roc_auc.toFixed(4)}</dd></div><div><dt>Reported test accuracy</dt><dd>{historicalReport.accuracy.toFixed(4)}</dd></div></dl><p>These figures are separate from the five-fold means above. They describe the recorded case–background test sample, not the probability of a future event.</p><a className="method-inline-link" href={reportDownload} download="final_model_evaluation.json">Download historical report (JSON)<ArrowRight size={16} aria-hidden="true" /></a></details></aside>
+    </section>
+
+    <section id="scores" className="method-section" aria-labelledby="scores-title">
+      <SectionTitle number="05" id="scores-title" eyebrow="From model to map" title="Static scores on a 30 m grid." />
+      <div className="method-two-column"><div><p>The district inference script reads 19 existing predictor bands, adds rainfall climatology values, mapped lithology and nearest-waterway distance, then applies the saved model to complete, usable cells.</p><p>Rainfall is sampled with nearest-neighbour resampling, rock types are joined from polygons, and waterway distances are calculated in the projected coordinate system. Missing or excluded cells retain NoData.</p><p>The result is a Float32 raster in EPSG:32643 with {gridSpacings} cell spacing. <strong>This does not establish measured 30 m predictive accuracy.</strong> Some inputs carry much coarser information, and their original construction is incompletely documented.</p></div><div className="method-panel method-score-guide"><ScanLine size={26} aria-hidden="true" /><h3>A 0–1 relative model score</h3><p>Higher scores indicate higher relative model susceptibility. A score of 0.8 does not mean an 80% chance of a landslide. The scores are uncalibrated, with no event time window or per-cell uncertainty estimate.</p><ul className="method-bands" aria-label={colorScale.label}>{colorScale.labels.map((label, index) => <li key={label}><span style={{ background: colorScale.colors[index] }} aria-hidden="true" />{label}</li>)}</ul><p>Fixed bands are shared across districts. They are display intervals, not validated warning thresholds; the first four exclude their upper bound and the last includes 1.</p></div></div>
+      <div className="method-nodata"><h3>NoData does not mean safe</h3><p>The source sentinel is −9999. Excluded, missing or outside-coverage cells have no valid score. Transparent areas can also reflect hidden overlays, zero opacity or loading failures. Neither transparency nor a low model score establishes safety.</p><p>Valid-pixel coverage is the share of valid pixels within the raster rectangle, not the share of a district covered or at risk. Use Map Explorer’s location inspection to read an original source-cell score.</p></div>
+      <nav className="method-districts" aria-label="District susceptibility maps">{districtCatalog.map(item => <Link key={item.id} to={districtMapURL(item.id)}><Map size={17} aria-hidden="true" /><span>View {item.name} on Map</span><ArrowRight size={17} aria-hidden="true" /></Link>)}</nav>
+    </section>
+
+    <section id="limitations" className="method-section" aria-labelledby="limitations-title">
+      <SectionTitle number="06" id="limitations-title" eyebrow="Limits of the evidence" title="Useful context. Unfinished science." />
+      <div className="method-two-column"><article className="method-panel"><h3>Incomplete source history</h3><p>The original inventory, sampling/export code and some predictor definitions remain unverified. Rainfall units are explicitly unverified in the source outputs. The selected model’s complete training and evaluation trail has not been recovered.</p></article><article className="method-panel"><h3>Limited independence</h3><p>Spatial blocks reduce direct geographic mixing but do not eliminate spatial dependence or possible event-level leakage. Repeated locations and prior use of shared test geography limit claims of a wholly independent test.</p></article><article className="method-panel"><h3>Transfer is not established</h3><p>No external, time-based or leave-one-district-out validation was found. Results within this inventory do not demonstrate accuracy for future events, new regions or every 30 m cell. No confidence intervals or per-cell error estimates are supplied.</p></article><article className="method-panel"><h3>No operational warning capability</h3><p>The maps use static landscape inputs. They do not monitor current rainfall, forecast event timing or provide calibrated event probabilities. Use authoritative local guidance and field assessment; do not rely on this map alone for emergency, travel or engineering decisions.</p></article></div>
+    </section>
+
+    <section id="sources" className="method-section method-sources" aria-labelledby="sources-title">
+      <SectionTitle number="07" id="sources-title" eyebrow="Trace the evidence" title="Sources behind this explanation." />
+      <p>This page summarizes the selected experiment reviewed on 27 October 2026. Detailed provenance checks and unresolved technical questions remain in the internal repository audit, <code>frontend/METHODOLOGY_RESEARCH.md</code>. The references below identify the inspected project artifacts; they are not claims of independent external validation.</p>
+      <details className="method-details"><summary>Repository artifact references</summary><dl><div><dt>Selected saved model</dt><dd><code>ml/models/rf_250m_controlled_22pred_EXPERIMENT.joblib</code></dd></div><div><dt>Recorded spatial-validation folds</dt><dd><code>ml/data/controlled_250m_22pred_spatial_cv_results.csv</code><a href={foldDownload} download="controlled_250m_22pred_spatial_cv_results.csv">Download CSV</a></dd></div><div><dt>Historical test report</dt><dd><code>ml/results/final_model_evaluation.json</code><a href={reportDownload} download="final_model_evaluation.json">Download JSON</a></dd></div><div><dt>Local sample and split evidence</dt><dd><code>ml/data/processed_250m_controlled_22predictors_spatial_REVIEW.csv</code><small>Inspected local input; not distributed by this website.</small></dd></div><div><dt>District inference method</dt><dd><code>ml/scripts/prahari_district_22pred_inference.py</code><small>Input assembly, validity checks, saved-model scoring and Float32 output.</small></dd></div><div><dt>Original geographic assignment methods</dt><dd><code>ml/check_spatial.py</code><code>ml/create_spatial_split.py</code><small>Original assignments were checked against the controlled table; the selected run’s own generator is missing.</small></dd></div><div><dt>Raster identity and display bands</dt><dd><code>ml/results/artifact_sha256.txt</code><code>frontend/src/map/raster-catalog.json</code><code>frontend/src/map/color-scale.json</code></dd></div></dl></details>
+    </section>
+    <footer className="method-footer"><div><h2>Explore with the evidence in view.</h2><p>Read district metadata alongside the model’s limitations.</p></div><Link to="/districts" className="button button-green">Meet the districts<ArrowRight size={18} aria-hidden="true" /></Link></footer>
+  </main>
+}

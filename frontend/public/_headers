@@ -1,0 +1,23 @@
+# Conservative first-release policy: revalidate map files, including misses.
+# no-transform protects PNG categories and numerical payload bytes.
+/generated-data/*
+  Cache-Control: public, max-age=0, must-revalidate, no-transform
+  X-Content-Type-Options: nosniff
+
+/generated-data/susceptibility/*.png
+  Content-Type: image/png
+
+/generated-data/scores/*.sct.gz
+  Content-Type: application/octet-stream
+
+/generated-data/susceptibility/manifest.json
+  Content-Type: application/json
+
+/generated-data/scores/manifest.json
+  Content-Type: application/json
+
+/index.html
+  Cache-Control: no-cache
+
+/404.html
+  Cache-Control: no-store
