@@ -17,3 +17,10 @@ content_path = "./supabase/templates/invite.html"
 
 [functions.invite-official]
 verify_jwt = true
+
+# Public Stage 1 intake/verification only. Existing privileged invitation JWT checks stay enabled.
+[functions.submit-access-request]
+verify_jwt = false
+
+[functions.verify-access-request]
+verify_jwt = false

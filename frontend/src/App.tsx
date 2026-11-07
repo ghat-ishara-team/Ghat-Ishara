@@ -115,6 +115,7 @@ export default function App() {
   const landingEntrancePlayed = useRef(false)
   useEffect(() => {
     const officialTitles: Record<string, string> = {
+      '/official/request-access': 'Request official access', '/official/verify-request': 'Verify request email',
       '/official/accept-invite': 'Accept invitation', '/official/dashboard': 'Official dashboard', '/official/admin': 'Official administration',
     }
     const profile = pathname.startsWith('/districts/') ? districtById(pathname.slice('/districts/'.length).replace(/\/$/, '')) : undefined

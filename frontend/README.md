@@ -32,6 +32,8 @@ Build verifies map assets before Vite and validates the completed `dist/` afterw
 
 ## Distribution and tests
 
+[ACCESS_REQUESTS.md](ACCESS_REQUESTS.md) documents Stage 1 officer access requests at `/official/request-access`, email verification and isolated local testing. Requests do not create accounts or grant permissions. Administrator review and approval-linked invitations remain future stages.
+
 [MAP_RELEASE.md](MAP_RELEASE.md) documents deterministic public archive creation, SHA-256 pinning, safe extraction, tests and the publication checklist. `npm run package:maps` produces ignored local artifacts only; no script publishes a Release or deploys the site. `npm run test:maps-distribution` tests archives and installation in temporary directories.
 
 Existing checks include `test:map`, `test:scores`, `test:map-browser`, `test:scores-browser`, `test:districts`, `test:methodology`, `test:about`, `test:persistence` and `test:persistence-browser`. Browser tests need system Chromium or `CHROMIUM_PATH`; automated checks do not replace manual accessibility and live-service verification.

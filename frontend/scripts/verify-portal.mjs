@@ -23,7 +23,7 @@ try {
   assert.equal(await page.getByLabel('Email address', { exact: true }).isDisabled(), true)
   assert.equal(await page.getByRole('link', { name: /sign up|register/i }).count(), 0)
   await page.screenshot({ path: 'qa-results/official-login.png', fullPage: true })
-  for (const route of ['/official/login', '/official/accept-invite', '/official/dashboard', '/official/admin']) {
+  for (const route of ['/official/login', '/official/accept-invite', '/official/request-access', '/official/verify-request', '/official/dashboard', '/official/admin']) {
     await page.goto(`${baseURL}${route}`, { waitUntil: 'networkidle' })
     if (route.endsWith('dashboard') || route.endsWith('admin')) {
       assert.equal(new URL(page.url()).pathname, '/official/login', 'Guest protected route redirects')

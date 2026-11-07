@@ -4,6 +4,8 @@ For the shortest path from the current configured frontend to a working invited 
 
 ## Current status
 
+Stage 1 now provides a public access-request form and single-use request-email verification. Requests remain pending and grant no official permissions. Administrator request review, approval/rejection and approval-linked invitations are not implemented; existing administrator-initiated invitations remain separate. See [ACCESS_REQUESTS.md](ACCESS_REQUESTS.md) for security, local-only mail configuration and isolated testing.
+
 The public landing page, image, animations and public routes remain in place. Official pages are lazy-loaded so the Supabase SDK is not loaded by public-only visitors. The public navigation now includes **Official Login**.
 
 Implemented: password sign-in, invitation acceptance/password setup, auth state handling, logout, protected dashboard, administrator navigation, invitation form, account status/role/district management, audit-log review, versioned migrations, district RLS, a trusted invitation Edge Function and a manual first-admin procedure.

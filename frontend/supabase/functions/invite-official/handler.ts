@@ -50,24 +50,101 @@ export function createInviteHandler({ env, createClient }: Dependencies) {
       actorId = user.id
       const text = await request.text()
       if (text.length > 4000) return respond(400, { error: 'Request too large.' })
-      const body = JSON.parse(text)
-      if (!body || typeof body !== 'object' || typeof body.email !== 'string' || body.email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email.trim())
-        || !roles.includes(body.role) || !Array.isArray(body.districts) || body.districts.length > 4
-        || body.districts.some((district: unknown) => typeof district !== 'string' || !districts.includes(district))
-        || new Set(body.districts).size !== body.districts.length
-        || (body.role !== 'system_admin' && body.districts.length === 0)) {
-        return respond(400, { error: 'Provide a valid email, role and district assignments.' })
-      }
-      // Database checks active administrator status and rate limit under an advisory lock.
-      const { data: reservation, error: reserveError } = await caller.rpc('begin_official_invitation', {
-        p_email: body.email, p_role: body.role, p_districts: body.districts,
-      })
-      if (reserveError || !reservation) return respond(reserveError?.code === '42501' ? 403 : 400, {
-        error: 'Invitation not authorized or request rejected. Check account status, existing accounts and the hourly invitation limit.',
-      })
-      requestId = reservation
+
+const body: unknown = JSON.parse(text)
+
+if (!body || typeof body !== 'object' || Array.isArray(body)) {
+  return respond(400, { error: 'Invalid invitation request.' })
+}
+
+const input = body as Record<string, unknown>
+
+let recipientEmail: string
+let reservationId: string
+
+if ('application_id' in input) {
+  // Approved officer invitation:
+  // The browser supplies ONLY an application UUID.
+  if (
+    Object.keys(input).length !== 1 ||
+    typeof input.application_id !== 'string' ||
+    !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+      input.application_id
+    )
+  ) {
+    return respond(400, { error: 'Invalid application identifier.' })
+  }
+
+  const { data, error: reserveError } = await caller.rpc(
+    'begin_approved_official_invitation',
+    { p_application_id: input.application_id }
+  )
+
+  const reservation = Array.isArray(data) ? data[0] : null
+
+  if (
+    reserveError ||
+    !reservation ||
+    typeof reservation.reservation_id !== 'string' ||
+    typeof reservation.recipient_email !== 'string'
+  ) {
+    return respond(403, {
+      error: 'Application is not eligible for invitation.'
+    })
+  }
+
+  reservationId = reservation.reservation_id
+  recipientEmail = reservation.recipient_email
+
+} else {
+  // Legacy invitation route is reserved for system administrators.
+  // The database independently enforces this restriction.
+  if (
+    Object.keys(input).some(
+      key => !['email', 'role', 'districts'].includes(key)
+    ) ||
+    typeof input.email !== 'string' ||
+    input.email.length > 254 ||
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email.trim()) ||
+    input.role !== 'system_admin' ||
+    !Array.isArray(input.districts) ||
+    input.districts.length > 4 ||
+    input.districts.some(
+      (district: unknown) =>
+        typeof district !== 'string' || !districts.includes(district)
+    ) ||
+    new Set(input.districts).size !== input.districts.length
+  ) {
+    return respond(400, {
+      error: 'Officer invitations require an approved application.'
+    })
+  }
+
+  const { data, error: reserveError } = await caller.rpc(
+    'begin_official_invitation',
+    {
+      p_email: input.email,
+      p_role: input.role,
+      p_districts: input.districts
+    }
+  )
+
+  if (reserveError || typeof data !== 'string') {
+    return respond(403, {
+      error: 'Administrator invitation was not authorized.'
+    })
+  }
+
+  reservationId = data
+  recipientEmail = input.email.trim().toLowerCase()
+}
+
+      requestId = reservationId
       service = createClient(url, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } })
-      const { data, error } = await service.auth.admin.inviteUserByEmail(body.email.trim().toLowerCase(), { redirectTo: redirect })
+      const { data, error } = await service.auth.admin.inviteUserByEmail(
+        recipientEmail,
+        { redirectTo: redirect }
+      )
       if (error || !data.user) throw new Error('Invitation delivery failed')
       // Identity/profile provisioning is fail-closed if authorization changes during email delivery.
       const { error: provisionError } = await service.rpc('finish_official_invitation', {

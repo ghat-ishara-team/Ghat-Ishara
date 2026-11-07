@@ -7,6 +7,7 @@ import { captureInvitation, clearInvitationToken, getInvitationToken, supabase }
 import { parseOfficialContext } from './types'
 import Dashboard from './Dashboard'
 import AdminPage from './AdminPage'
+import AccessRequestPage, { VerifyAccessRequestPage } from './AccessRequestPage'
 import './official.css'
 
 export function PortalFrame({ children, title, intro }: { children: ReactNode; title: string; intro?: string }) {
@@ -77,7 +78,7 @@ function LoginPage() {
       {(error || accessError) && <p className="portal-message portal-error" role="alert">{error || accessError}</p>}
       <button className="button button-green" disabled={!configured || busy} type="submit">{busy ? 'Signing in…' : 'Sign in'}<ArrowRight size={18} aria-hidden="true" /></button>
     </form>}
-    <p className="form-footnote">Need access? Ask your system administrator for an invitation. Public maps remain available without an account.</p>
+    <p className="form-footnote">Need access? <Link to="/official/request-access">Submit an access request</Link>. An administrator must separately approve and invite you. Public maps remain available without an account.</p>
     <Link className="portal-text-link" to="/map">Return to the public map <ArrowRight size={14} aria-hidden="true" /></Link>
   </AuthShell>
 }
@@ -159,6 +160,8 @@ function RequireOfficial({ children, admin = false }: { children: ReactNode; adm
 export default function OfficialPortal() {
   return <AuthProvider><Routes>
     <Route path="login" element={<LoginPage />} />
+    <Route path="request-access" element={<AccessRequestPage />} />
+    <Route path="verify-request" element={<VerifyAccessRequestPage />} />
     <Route path="accept-invite" element={<AcceptInvitePage />} />
     <Route path="dashboard" element={<RequireOfficial><Dashboard /></RequireOfficial>} />
     <Route path="admin" element={<RequireOfficial admin><AdminPage /></RequireOfficial>} />

@@ -1,3 +1,5 @@
+import AccessRequestsPanel from './AccessRequestsPanel'
+import ApprovedInvitationsPanel from './ApprovedInvitationsPanel'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import { MailPlus, RefreshCw } from 'lucide-react'
@@ -19,7 +21,7 @@ export default function AdminPage() {
   const owner = session ? officialDraftScope(session.user.id) : null
   const invitation = useFormDraft(invitationDraftSchema, owner)
   const management = useFormDraft(managementDraftSchema, owner)
-  const { email, role, districts: scope } = invitation.draft
+  const { email } = invitation.draft
   const [accounts, setAccounts] = useState<ManagedOfficial[]>([])
   const [logs, setLogs] = useState<AuditLog[]>([])
   const [loading, setLoading] = useState(true)
@@ -90,11 +92,10 @@ export default function AdminPage() {
   async function invite(event: FormEvent) {
     event.preventDefault()
     if (!supabase || !canAdminister || busy) return
-    if (role !== 'system_admin' && !scope.length) { setError('Assign at least one district to an officer.'); return }
     const submittedDraft = invitation.draft
     setBusy(true); setError(''); setMessage('')
     try {
-      const { data, error: invitationError } = await supabase.functions.invoke('invite-official', { body: { email: email.trim(), role, districts: scope } })
+      const { data, error: invitationError } = await supabase.functions.invoke('invite-official', { body: { email: email.trim(), role: 'system_admin', districts: [] } })
       if (invitationError || !data?.user_id) throw new Error('invite')
       setMessage('Invitation issued. The official must accept the email link and set their password within one hour.')
       // A late response must not erase new work entered after navigating away and back.
@@ -134,11 +135,9 @@ export default function AdminPage() {
     {error && <p role="alert" className="portal-message portal-error">{error}</p>}{accountError && <p role="alert" className="portal-message portal-error">{accountError}</p>}{message && <p role="status" className="portal-message">{message}</p>}
     {revalidating && <p className="field-hint" role="status">Checking current permissions…</p>}
     <div className="admin-grid">
-      <section className="portal-card" aria-labelledby="invite-title"><MailPlus size={24} className="text-sage" aria-hidden="true" /><h2 id="invite-title">Invite an official</h2><p className="form-intro">Send an invitation to a verified, approved recipient. They choose their own password.</p><form className="portal-form" onSubmit={event => void invite(event)}>
+      <section className="portal-card" aria-labelledby="invite-title"><MailPlus size={24} className="text-sage" aria-hidden="true" /><h2 id="invite-title">Invite a system administrator</h2><p className="form-intro">Privileged administrator invitations only. District and senior officers must use the approved access-request queue below.</p><form className="portal-form" onSubmit={event => void invite(event)}>
         <label htmlFor="admin-invite-email">Recipient email</label><input id="admin-invite-email" type="email" required maxLength={254} placeholder="demo.invitee@example.invalid" value={email} onChange={event => invitation.setDraft(previous => ({ ...previous, email: event.target.value }))} disabled={busy || !canAdminister} />
-        <label htmlFor="admin-invite-role">Application role</label><select id="admin-invite-role" value={role} onChange={event => invitation.setDraft(previous => ({ ...previous, role: event.target.value as OfficialRole }))} disabled={busy || !canAdminister}>{roles.map(item => <option value={item} key={item}>{roleLabels[item]}</option>)}</select>
-        <DistrictPicker id="invite" value={scope} onChange={value => invitation.setDraft(previous => ({ ...previous, districts: value }))} disabled={busy || !canAdminister} />
-        <p className="field-hint">Officers need at least one district. Administrative authority alone does not grant district records. Maximum 10 invitation requests per administrator per hour.</p>
+        <p className="field-hint">System administrators receive no district assignments through this form. Administrator invitations are privileged operations.</p>
         <DraftControls status={invitation.status} onClear={invitation.clearDraft} disabled={busy} label="Clear invitation draft" />
         <button className="button button-green" type="submit" disabled={busy || !canAdminister}>{busy ? 'Working…' : 'Send invitation'}</button>
       </form></section>
@@ -153,6 +152,8 @@ export default function AdminPage() {
         <DraftControls status={management.status} onClear={() => { management.clearDraft(); setManagementNotice('') }} disabled={busy} label="Clear account access draft" />
       </form>}</section>
     </div>
+    {canAdminister && <AccessRequestsPanel />}
+    {canAdminister && <ApprovedInvitationsPanel />}
     <section className="portal-card audit-card" aria-labelledby="audit-title"><div className="section-heading"><h2 id="audit-title">Administrative audit log</h2><button className="portal-quiet-button" onClick={() => { setError(''); void load() }} disabled={loading || busy}><RefreshCw size={15} aria-hidden="true" />Refresh</button></div><p className="field-hint">Latest 100 entries. Invitation tokens and passwords are never recorded here.</p>{loading ? <p role="status">Loading audit entries…</p> : logs.length ? <div className="portal-table-wrap"><table><caption className="sr-only">Administrative changes</caption><thead><tr><th scope="col">Time</th><th scope="col">Action</th><th scope="col">Actor UUID</th><th scope="col">Target UUID</th></tr></thead><tbody>{logs.map(log => <tr key={log.id}><td>{new Date(log.created_at).toLocaleString()}</td><td>{log.action}</td><td>{log.actor_id ?? 'Trusted database operation'}</td><td>{log.target_user_id ?? '—'}</td></tr>)}</tbody></table></div> : <p className="empty-state">No audit entries available.</p>}</section>
   </PortalFrame>
 }

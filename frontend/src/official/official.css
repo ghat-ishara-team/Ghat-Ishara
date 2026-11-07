@@ -20,6 +20,11 @@
 .auth-card h2 { font-size: 35px; }
 .form-intro { color: #c6d0cf; font-size: 14px; line-height: 1.7; margin: 0 0 24px; }
 .portal-form { display: flex; flex-direction: column; gap: 10px; }
+.request-field { display: flex; flex-direction: column; gap: 8px; }
+.request-field label { color: #e0eadf; font-size: 13px; font-weight: 500; }
+.request-field textarea { width: 100%; min-height: 130px; resize: vertical; border: 1px solid #a6c7b14a; border-radius: 9px; background: #06191ed9; color: #f6f5ed; padding: 11px 13px; font: inherit; }
+.request-field textarea:focus-visible { outline-offset: 2px; border-color: #8bce86; }
+.request-field textarea:disabled { cursor: not-allowed; opacity: .6; }
 .portal-form > label, .district-picker legend { color: #e0eadf; font-size: 13px; font-weight: 500; }
 .portal-form > label:not(:first-child) { margin-top: 12px; }
 .portal-form input:not([type="checkbox"]), .portal-form select { width: 100%; min-width: 0; min-height: 48px; border: 1px solid #a6c7b14a; border-radius: 9px; background: #06191ed9; color: #f6f5ed; padding: 11px 13px; font: inherit; font-size: 14px; color-scheme: dark; }
