@@ -1,5 +1,5 @@
 {
-  "checked_at_utc": "2026-11-07T05:34:39.474499+00:00",
+  "checked_at_utc": "2026-11-07T06:15:01.910783+00:00",
   "monitoring_health": "current",
   "storm_state_is_current": true,
   "mode": "nonmonsoon_daily",
@@ -8,13 +8,13 @@
   "threshold_configured": true,
   "rain_trigger_threshold_30min_mm": 10.0,
   "latest_observation_start_utc": "2026-11-07T00:30:00+00:00",
-  "observation_age_hours": 4.58,
+  "observation_age_hours": 5.25,
   "data_fresh": true,
   "new_observations": 12,
-  "stored_observations": 23,
-  "backlog_before": 127,
+  "stored_observations": 34,
+  "backlog_before": 115,
   "backlog_processed": 12,
-  "backlog_remaining": 115,
+  "backlog_remaining": 103,
   "failed_observations": 0,
   "rainfall_windows": {
     "4h": {
@@ -25,15 +25,15 @@
     },
     "24h": {
       "complete": false,
-      "observations": 9,
+      "observations": 21,
       "required": 48,
-      "missing": 39
+      "missing": 27
     },
     "72h": {
       "complete": false,
-      "observations": 23,
+      "observations": 34,
       "required": 144,
-      "missing": 121
+      "missing": 110
     }
   },
   "full_pipeline_attempted": false,
