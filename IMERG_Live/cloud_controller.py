@@ -308,7 +308,8 @@ def prioritize_missing(discovered, history):
         [
             item for item in missing
             if item[0] < recent_cutoff
-        ]
+        ],
+        reverse=True
     )
 
     return recent + older
