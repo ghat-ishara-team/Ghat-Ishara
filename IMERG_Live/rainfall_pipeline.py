@@ -315,11 +315,26 @@ def download_new_observations():
             for timestamp, filename, url in files:
                 if start.replace(tzinfo=None) <= timestamp <= now.replace(tzinfo=None):
                     candidates[timestamp] = (filename, url)
+        except requests.exceptions.HTTPError as error:
+            status = (
+                error.response.status_code
+                if error.response is not None
+                else None
+            )
+
+            if status == 404 and day == now.date():
+                print(
+                    f"Archive {day} not yet available "
+                    "(HTTP 404). Will retry on next run."
+                )
+            else:
+                print(f"Archive {day} failed: {error}")
+                failures.append(f"Archive {day}: {error}")
+
         except Exception as error:
             print(f"Archive {day} unavailable: {error}")
             failures.append(f"Archive {day}: {error}")
         day += timedelta(days=1)
-
     print("Observations discovered:", len(candidates))
     pending = []
     for timestamp, (filename, url) in sorted(candidates.items(), reverse=True):

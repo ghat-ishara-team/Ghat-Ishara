@@ -7,6 +7,7 @@ Calculates complete 4h, 24h and 72h observed rainfall accumulations.
 This is a monitoring prototype, not a validated landslide warning system.
 """
 
+import requests
 import json
 import os
 import sys
@@ -360,11 +361,28 @@ def run():
                 now - timedelta(days=offset)
             ).date()
 
-            discovered.extend(
-                pipe.discover_archive_files(
-                    session, day
+            try:
+                discovered.extend(
+                    pipe.discover_archive_files(
+                        session, day
+                    )
                 )
-            )
+
+            except requests.exceptions.HTTPError as exc:
+                status = (
+                    exc.response.status_code
+                    if exc.response is not None
+                    else None
+                )
+
+                if status == 404 and day == now.date():
+                    print(
+                        f"Archive {day} not yet available "
+                        "(HTTP 404). Checking older dates."
+                    )
+                    continue
+
+                raise
 
         cutoff = (
             now - timedelta(hours=HISTORY_HOURS)
