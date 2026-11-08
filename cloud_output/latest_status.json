@@ -1,5 +1,5 @@
 {
-  "checked_at_utc": "2026-11-08T02:23:08.483645+00:00",
+  "checked_at_utc": "2026-11-08T02:25:37.225045+00:00",
   "monitoring_health": "current",
   "storm_state_is_current": true,
   "mode": "nonmonsoon_daily",
@@ -7,14 +7,14 @@
   "storm_active": false,
   "threshold_configured": true,
   "rain_trigger_threshold_30min_mm": 10.0,
-  "latest_observation_start_utc": "2026-11-07T20:30:00+00:00",
-  "observation_age_hours": 5.39,
+  "latest_observation_start_utc": "2026-11-07T21:30:00+00:00",
+  "observation_age_hours": 4.43,
   "data_fresh": true,
-  "new_observations": 12,
-  "stored_observations": 150,
-  "backlog_before": 18,
-  "backlog_processed": 12,
-  "backlog_remaining": 6,
+  "new_observations": 8,
+  "stored_observations": 158,
+  "backlog_before": 8,
+  "backlog_processed": 8,
+  "backlog_remaining": 0,
   "failed_observations": 0,
   "rainfall_windows": {
     "4h": {
@@ -24,35 +24,24 @@
       "max_mm": 0.0
     },
     "24h": {
-      "complete": false,
-      "observations": 42,
+      "complete": true,
+      "observations": 48,
       "required": 48,
-      "missing": 6
+      "max_mm": 0.0
     },
     "72h": {
-      "complete": false,
-      "observations": 138,
+      "complete": true,
+      "observations": 144,
       "required": 144,
-      "missing": 6
+      "max_mm": 0.0
     }
   },
-  "full_pipeline_attempted": true,
-  "full_pipeline_succeeded": true,
-  "pending_full_processing": false,
+  "full_pipeline_attempted": false,
+  "full_pipeline_succeeded": false,
+  "pending_full_processing": true,
   "full_pipeline_retry_pending": false,
-  "full_pipeline_backlog_remaining": 0,
-  "pipeline_result": {
-    "processed_successfully": 14,
-    "processing_failed": 0,
-    "completed": true,
-    "download_result": {
-      "download_enabled": true,
-      "discovered": 7,
-      "pending": 2,
-      "selected": 2,
-      "downloaded": 2
-    }
-  },
+  "full_pipeline_backlog_remaining": null,
+  "pipeline_result": null,
   "last_successful_full_run_utc": "2026-11-08T02:23:08.483645+00:00",
   "errors": [],
   "warning": "Observed IMERG Early Run; not a forecast or validated landslide warning"
