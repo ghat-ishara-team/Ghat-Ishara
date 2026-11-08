@@ -1,5 +1,5 @@
 {
-  "checked_at_utc": "2026-11-07T16:49:43.299764+00:00",
+  "checked_at_utc": "2026-11-08T02:23:08.483645+00:00",
   "monitoring_health": "current",
   "storm_state_is_current": true,
   "mode": "nonmonsoon_daily",
@@ -7,14 +7,14 @@
   "storm_active": false,
   "threshold_configured": true,
   "rain_trigger_threshold_30min_mm": 10.0,
-  "latest_observation_start_utc": "2026-11-07T11:30:00+00:00",
-  "observation_age_hours": 4.83,
+  "latest_observation_start_utc": "2026-11-07T20:30:00+00:00",
+  "observation_age_hours": 5.39,
   "data_fresh": true,
-  "new_observations": 9,
-  "stored_observations": 138,
-  "backlog_before": 9,
-  "backlog_processed": 9,
-  "backlog_remaining": 0,
+  "new_observations": 12,
+  "stored_observations": 150,
+  "backlog_before": 18,
+  "backlog_processed": 12,
+  "backlog_remaining": 6,
   "failed_observations": 0,
   "rainfall_windows": {
     "4h": {
@@ -24,10 +24,10 @@
       "max_mm": 0.0
     },
     "24h": {
-      "complete": true,
-      "observations": 48,
+      "complete": false,
+      "observations": 42,
       "required": 48,
-      "max_mm": 0.0
+      "missing": 6
     },
     "72h": {
       "complete": false,
@@ -36,13 +36,24 @@
       "missing": 6
     }
   },
-  "full_pipeline_attempted": false,
-  "full_pipeline_succeeded": false,
-  "pending_full_processing": true,
+  "full_pipeline_attempted": true,
+  "full_pipeline_succeeded": true,
+  "pending_full_processing": false,
   "full_pipeline_retry_pending": false,
-  "full_pipeline_backlog_remaining": null,
-  "pipeline_result": null,
-  "last_successful_full_run_utc": "2026-11-07T05:29:04.250102+00:00",
+  "full_pipeline_backlog_remaining": 0,
+  "pipeline_result": {
+    "processed_successfully": 14,
+    "processing_failed": 0,
+    "completed": true,
+    "download_result": {
+      "download_enabled": true,
+      "discovered": 7,
+      "pending": 2,
+      "selected": 2,
+      "downloaded": 2
+    }
+  },
+  "last_successful_full_run_utc": "2026-11-08T02:23:08.483645+00:00",
   "errors": [],
   "warning": "Observed IMERG Early Run; not a forecast or validated landslide warning"
 }
