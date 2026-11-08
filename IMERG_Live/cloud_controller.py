@@ -33,7 +33,7 @@ HISTORY = OUT / "history.npz"
 IST = ZoneInfo("Asia/Kolkata")
 
 MAX_AGE_HOURS = 8
-HISTORY_HOURS = 74
+HISTORY_HOURS = 96
 MAX_PROBE_FILES = 12
 
 # Prevent unexpectedly large history files from being committed.
