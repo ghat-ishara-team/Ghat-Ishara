@@ -20,7 +20,7 @@ import numpy as np
 import xarray as xr
 
 import rainfall_pipeline as pipe
-
+from storm_logic import evaluate_storm
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "cloud_output"
@@ -522,62 +522,78 @@ def run():
         and -0.5 <= age_hours <= MAX_AGE_HOURS
     )
 
-    # Evaluate only observations newer than the last evaluated one.
-    # Dry observations must be consecutive 30-minute granules.
-    last_evaluated_raw = state.get("last_storm_evaluated_utc")
-    last_evaluated = (
-        datetime.fromisoformat(last_evaluated_raw)
-        if last_evaluated_raw
-        else previous_history_latest
+    # Reconstruct storm transitions from the full retained observation history.
+    # This also incorporates granules that arrive after newer observations.
+    dry_required = max(
+        1, int(os.getenv("DRY_OBSERVATIONS_TO_RESET", "6"))
+    )
+    storm_result = evaluate_storm(
+        history,
+        threshold_mm=rain_threshold,
+        dry_required=dry_required,
+        max_age_hours=MAX_AGE_HOURS,
+        now=now,
     )
 
-    if last_evaluated_raw is None and last_evaluated is not None:
-        state["last_storm_evaluated_utc"] = last_evaluated.isoformat()
+    previously_active = bool(state.get("storm_active", False))
+    reconstructed_active = bool(storm_result["storm_active"])
+    storm_uncertain = False
 
-    for ts, maximum in sorted(new_obs):
+    # A reconstructed inactive state is trustworthy for clearing a
+    # previously active storm only if we can verify a complete run of
+    # consecutive dry observations at the end of retained history.
+    # This handles a storm whose triggering granule has been trimmed.
+    verified_dry_reset = False
+    if rain_threshold is not None and history:
+        consecutive_dry = 0
+        expected_next = None
+        for stamp in sorted(history, reverse=True):
+            obs_time = datetime.fromisoformat(stamp)
+            if obs_time.tzinfo is None:
+                obs_time = obs_time.replace(tzinfo=timezone.utc)
+            else:
+                obs_time = obs_time.astimezone(timezone.utc)
 
-        if last_evaluated is not None and ts <= last_evaluated:
-            continue
-
-        # A missing half-hour interval breaks a consecutive dry streak.
-        consecutive = (
-            last_evaluated is not None
-            and ts - last_evaluated == timedelta(minutes=30)
-        )
-
-        if state.get("storm_active") and not consecutive:
-            state["consecutive_dry_observations"] = 0
-
-        # Missing or invalid rainfall cannot count as dry.
-        if maximum is None or rain_threshold is None:
-            state["consecutive_dry_observations"] = 0
-            last_evaluated = ts
-            state["last_storm_evaluated_utc"] = ts.isoformat()
-            continue
-
-        last_evaluated = ts
-        state["last_storm_evaluated_utc"] = ts.isoformat()
-
-        if maximum >= rain_threshold:
-            state["storm_active"] = True
-            state["consecutive_dry_observations"] = 0
-
-        elif state.get("storm_active"):
-            state["consecutive_dry_observations"] = (
-                state.get("consecutive_dry_observations", 0) + 1
-            )
-
-            dry_required = max(
-                1,
-                int(os.getenv("DRY_OBSERVATIONS_TO_RESET", "6"))
-            )
-
-            if state["consecutive_dry_observations"] >= dry_required:
-                state["storm_active"] = False
-                state["consecutive_dry_observations"] = 0
+            if expected_next is not None and obs_time != expected_next:
+                break
+            grid = np.asarray(history[stamp])
+            if not np.isfinite(grid).all():
+                break
+            if float(np.nanmax(grid)) >= rain_threshold:
+                break
+            consecutive_dry += 1
+            if consecutive_dry >= dry_required:
+                verified_dry_reset = True
+                break
+            expected_next = obs_time - timedelta(minutes=30)
 
     if rain_threshold is None:
-        state["storm_active"] = False
+        # Preserve the original behavior when the trigger is unconfigured.
+        active = False
+    elif previously_active and not reconstructed_active and not verified_dry_reset:
+        # The storm may have begun before the retained history. Keep the
+        # scheduling mode conservative and explicitly mark uncertainty.
+        active = True
+        storm_uncertain = True
+    elif reconstructed_active and not fresh and not previously_active:
+        # Do not activate a new storm mode from stale historical data alone.
+        active = False
+        storm_uncertain = True
+    else:
+        active = reconstructed_active
+
+    if not fresh and rain_threshold is not None:
+        storm_uncertain = True
+
+    state["storm_active"] = active
+    state["storm_state_uncertain"] = storm_uncertain
+    state["storm_data_fresh"] = bool(storm_result["data_fresh"])
+    state["consecutive_dry_observations"] = (
+        storm_result["consecutive_dry_observations"]
+        if reconstructed_active else 0
+    )
+    if history:
+        state["last_storm_evaluated_utc"] = max(history)
 
     season = monsoon(now)
 
@@ -745,7 +761,13 @@ def run():
     status = {
         "checked_at_utc": now.isoformat(),
         "monitoring_health": monitoring_health,
-        "storm_state_is_current": bool(fresh),
+        "storm_state_is_current": bool(
+            fresh and rain_threshold is not None and not storm_uncertain
+        ),
+        "storm_state_uncertain": storm_uncertain,
+        "storm_data_fresh": bool(storm_result["data_fresh"]),
+        "storm_observations_evaluated": storm_result["observations_evaluated"],
+        "storm_verified_dry_reset": verified_dry_reset,
         "mode": mode,
         "monsoon": season,
         "storm_active": active,
