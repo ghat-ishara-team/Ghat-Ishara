@@ -1,7 +1,11 @@
 {
-  "last_storm_evaluated_utc": "2026-11-07T21:30:00+00:00",
-  "pending_full_processing": true,
+  "last_storm_evaluated_utc": "2026-11-09T06:30:00+00:00",
+  "pending_full_processing": false,
   "full_pipeline_retry_pending": false,
-  "last_full_run_local_date": "2026-11-08",
-  "last_full_run_utc": "2026-11-08T02:23:08.483645+00:00"
+  "last_full_run_local_date": "2026-11-09",
+  "last_full_run_utc": "2026-11-09T12:21:23.958516+00:00",
+  "storm_active": false,
+  "storm_state_uncertain": false,
+  "storm_data_fresh": true,
+  "consecutive_dry_observations": 0
 }
