@@ -1,6 +1,8 @@
 name: GHAT ISHARA adaptive rainfall
 
 on:
+  schedule:
+    - cron: '7,37 * * * *'
   workflow_dispatch:
 
 permissions:
