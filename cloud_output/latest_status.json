@@ -1,20 +1,20 @@
 {
-  "checked_at_utc": "2026-11-10T21:56:14.757803+00:00",
-  "monitoring_health": "current",
-  "storm_state_is_current": true,
+  "checked_at_utc": "2026-11-11T01:53:57.722141+00:00",
+  "monitoring_health": "stale",
+  "storm_state_is_current": false,
   "mode": "nonmonsoon_daily",
   "monsoon": false,
   "storm_active": false,
   "threshold_configured": true,
   "rain_trigger_threshold_30min_mm": 10.0,
   "latest_observation_start_utc": "2026-11-10T16:30:00+00:00",
-  "observation_age_hours": 4.94,
-  "data_fresh": true,
-  "new_observations": 12,
-  "stored_observations": 21,
-  "backlog_before": 129,
-  "backlog_processed": 12,
-  "backlog_remaining": 117,
+  "observation_age_hours": 8.9,
+  "data_fresh": false,
+  "new_observations": 0,
+  "stored_observations": 18,
+  "backlog_before": 0,
+  "backlog_processed": 0,
+  "backlog_remaining": 0,
   "failed_observations": 0,
   "rainfall_windows": {
     "4h": {
@@ -31,29 +31,20 @@
     },
     "72h": {
       "complete": false,
-      "observations": 21,
+      "observations": 18,
       "required": 144,
-      "missing": 123
+      "missing": 126
     }
   },
-  "full_pipeline_attempted": true,
-  "full_pipeline_succeeded": true,
+  "full_pipeline_attempted": false,
+  "full_pipeline_succeeded": false,
   "pending_full_processing": false,
   "full_pipeline_retry_pending": false,
-  "full_pipeline_backlog_remaining": 0,
-  "pipeline_result": {
-    "processed_successfully": 12,
-    "processing_failed": 0,
-    "completed": true,
-    "download_result": {
-      "download_enabled": true,
-      "discovered": 6,
-      "pending": 0,
-      "selected": 0,
-      "downloaded": 0
-    }
-  },
+  "full_pipeline_backlog_remaining": null,
+  "pipeline_result": null,
   "last_successful_full_run_utc": "2026-11-10T21:56:14.757803+00:00",
-  "errors": [],
+  "errors": [
+    "monitoring: 404 Client Error: Not Found for url: https://gpm1.gesdisc.eosdis.nasa.gov/data/GPM_L3/GPM_3IMERGHHE.07/2026/315/"
+  ],
   "warning": "Observed IMERG Early Run; not a forecast or validated landslide warning"
 }
