@@ -1,20 +1,20 @@
 {
-  "checked_at_utc": "2026-11-12T15:56:38.073454+00:00",
-  "monitoring_health": "current",
-  "storm_state_is_current": true,
+  "checked_at_utc": "2026-11-12T22:13:11.849377+00:00",
+  "monitoring_health": "stale",
+  "storm_state_is_current": false,
   "mode": "nonmonsoon_daily",
   "monsoon": false,
   "storm_active": false,
   "threshold_configured": true,
   "rain_trigger_threshold_30min_mm": 10.0,
   "latest_observation_start_utc": "2026-11-12T10:30:00+00:00",
-  "observation_age_hours": 4.94,
-  "data_fresh": true,
-  "new_observations": 12,
-  "stored_observations": 66,
-  "backlog_before": 84,
-  "backlog_processed": 12,
-  "backlog_remaining": 72,
+  "observation_age_hours": 11.22,
+  "data_fresh": false,
+  "new_observations": 0,
+  "stored_observations": 63,
+  "backlog_before": 0,
+  "backlog_processed": 0,
+  "backlog_remaining": 0,
   "failed_observations": 0,
   "rainfall_windows": {
     "4h": {
@@ -31,18 +31,31 @@
     },
     "72h": {
       "complete": false,
-      "observations": 66,
+      "observations": 63,
       "required": 144,
-      "missing": 78
+      "missing": 81
     }
   },
-  "full_pipeline_attempted": false,
-  "full_pipeline_succeeded": false,
-  "pending_full_processing": true,
+  "full_pipeline_attempted": true,
+  "full_pipeline_succeeded": true,
+  "pending_full_processing": false,
   "full_pipeline_retry_pending": false,
-  "full_pipeline_backlog_remaining": null,
-  "pipeline_result": null,
-  "last_successful_full_run_utc": "2026-11-11T23:41:32.294533+00:00",
-  "errors": [],
+  "full_pipeline_backlog_remaining": 0,
+  "pipeline_result": {
+    "processed_successfully": 5,
+    "processing_failed": 0,
+    "completed": true,
+    "download_result": {
+      "download_enabled": true,
+      "discovered": 5,
+      "pending": 5,
+      "selected": 5,
+      "downloaded": 5
+    }
+  },
+  "last_successful_full_run_utc": "2026-11-12T22:13:11.849377+00:00",
+  "errors": [
+    "monitoring: HTTPSConnectionPool(host='gpm1.gesdisc.eosdis.nasa.gov', port=443): Read timed out. (read timeout=45)"
+  ],
   "warning": "Observed IMERG Early Run; not a forecast or validated landslide warning"
 }

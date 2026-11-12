@@ -1,7 +1,7 @@
 {
   "last_storm_evaluated_utc": "2026-11-12T10:30:00+00:00",
-  "pending_full_processing": true,
+  "pending_full_processing": false,
   "full_pipeline_retry_pending": false,
-  "last_full_run_local_date": "2026-11-12",
-  "last_full_run_utc": "2026-11-11T23:41:32.294533+00:00"
+  "last_full_run_local_date": "2026-11-13",
+  "last_full_run_utc": "2026-11-12T22:13:11.849377+00:00"
 }
