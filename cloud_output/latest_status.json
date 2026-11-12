@@ -1,5 +1,5 @@
 {
-  "checked_at_utc": "2026-11-11T23:41:32.294533+00:00",
+  "checked_at_utc": "2026-11-12T07:02:09.908959+00:00",
   "monitoring_health": "current",
   "storm_state_is_current": true,
   "mode": "nonmonsoon_daily",
@@ -7,14 +7,14 @@
   "storm_active": false,
   "threshold_configured": true,
   "rain_trigger_threshold_30min_mm": 10.0,
-  "latest_observation_start_utc": "2026-11-11T18:30:00+00:00",
-  "observation_age_hours": 4.69,
+  "latest_observation_start_utc": "2026-11-12T01:30:00+00:00",
+  "observation_age_hours": 5.04,
   "data_fresh": true,
   "new_observations": 12,
-  "stored_observations": 48,
-  "backlog_before": 102,
+  "stored_observations": 57,
+  "backlog_before": 92,
   "backlog_processed": 12,
-  "backlog_remaining": 90,
+  "backlog_remaining": 80,
   "failed_observations": 0,
   "rainfall_windows": {
     "4h": {
@@ -25,34 +25,23 @@
     },
     "24h": {
       "complete": false,
-      "observations": 27,
+      "observations": 31,
       "required": 48,
-      "missing": 21
+      "missing": 17
     },
     "72h": {
       "complete": false,
-      "observations": 48,
+      "observations": 57,
       "required": 144,
-      "missing": 96
+      "missing": 87
     }
   },
-  "full_pipeline_attempted": true,
-  "full_pipeline_succeeded": true,
-  "pending_full_processing": false,
+  "full_pipeline_attempted": false,
+  "full_pipeline_succeeded": false,
+  "pending_full_processing": true,
   "full_pipeline_retry_pending": false,
-  "full_pipeline_backlog_remaining": 0,
-  "pipeline_result": {
-    "processed_successfully": 12,
-    "processing_failed": 0,
-    "completed": true,
-    "download_result": {
-      "download_enabled": true,
-      "discovered": 6,
-      "pending": 0,
-      "selected": 0,
-      "downloaded": 0
-    }
-  },
+  "full_pipeline_backlog_remaining": null,
+  "pipeline_result": null,
   "last_successful_full_run_utc": "2026-11-11T23:41:32.294533+00:00",
   "errors": [],
   "warning": "Observed IMERG Early Run; not a forecast or validated landslide warning"
