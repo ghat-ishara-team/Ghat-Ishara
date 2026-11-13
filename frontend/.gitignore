@@ -1,0 +1,18 @@
+node_modules/
+dist/
+*.local
+qa-results/
+.env
+.env.*
+!.env.example
+supabase/.temp/
+supabase/.branches/
+supabase/.local-recovery/
+# Reproducible derived geospatial assets; never commit tile datasets.
+public/generated-data/
+scripts/geospatial/__pycache__/
+.venv-map/
+# Local public map release artifacts and private setup staging (never publish through Vite).
+release-output/
+.map-setup-*/
+.map-setup.lock

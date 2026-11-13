@@ -1,0 +1,13 @@
+# Application routes only. Never add a catch-all that rewrites data/assets.
+/map /index.html 200
+/map/ /index.html 200
+/explore-map /index.html 200
+/explore-map/ /index.html 200
+/districts /index.html 200
+/districts/* /index.html 200
+/methodology /index.html 200
+/methodology/ /index.html 200
+/about /index.html 200
+/about/ /index.html 200
+/official /index.html 200
+/official/* /index.html 200

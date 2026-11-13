@@ -1,0 +1,162 @@
+[
+  {
+    "id": "pune",
+    "name": "Pune",
+    "source": "PRAHARI_PUNE_250m_22pred_score.tif",
+    "crs": "EPSG:32643",
+    "bounds": [
+      73.31459367912892,
+      17.88775513668734,
+      75.16410068318152,
+      19.399208559085764
+    ],
+    "sourceBounds": [
+      323010.0,
+      1978560.0,
+      517230.0,
+      2145000.0
+    ],
+    "resolution": [
+      30.0,
+      30.0
+    ],
+    "width": 6474,
+    "height": 5548,
+    "dtype": "float32",
+    "nodata": -9999.0,
+    "validPixels": 16248008,
+    "validFraction": 0.45236706350664707,
+    "minimum": 0.0,
+    "maximum": 0.9758313894271851,
+    "sourceBytes": 53798445,
+    "sha256": "f9a0b10e797788480ea082a44c7409dfca052ab31933fa6bd8ca986c4edacc3e",
+    "tags": {
+      "DESCRIPTION": "Uncalibrated landslide susceptibility score; not event probability or operational warning",
+      "DISTRICT": "PUNE",
+      "MODEL": "rf_250m_controlled_22pred_EXPERIMENT",
+      "RAINFALL_UNITS": "UNVERIFIED",
+      "TEST_MODE": "NO",
+      "AREA_OR_POINT": "Area"
+    }
+  },
+  {
+    "id": "raigad",
+    "name": "Raigad",
+    "source": "PRAHARI_RAIGAD_250m_22pred_score.tif",
+    "crs": "EPSG:32643",
+    "bounds": [
+      72.80661352880196,
+      17.84454109999205,
+      73.66881579266138,
+      19.137022011517686
+    ],
+    "sourceBounds": [
+      269280.0,
+      1974330.0,
+      358950.0,
+      2116530.0
+    ],
+    "resolution": [
+      30.0,
+      30.0
+    ],
+    "width": 2989,
+    "height": 4740,
+    "dtype": "float32",
+    "nodata": -9999.0,
+    "validPixels": 7192788,
+    "validFraction": 0.5076834469002376,
+    "minimum": 0.0063333334401249886,
+    "maximum": 0.9623603820800781,
+    "sourceBytes": 23153777,
+    "sha256": "0edfdcbf61e400b35318b716d22c5ab85d986719c862363370d491352fcac95b",
+    "tags": {
+      "DESCRIPTION": "Uncalibrated landslide susceptibility score; not event probability or operational warning",
+      "DISTRICT": "RAIGAD",
+      "MODEL": "rf_250m_controlled_22pred_EXPERIMENT",
+      "RAINFALL_UNITS": "UNVERIFIED",
+      "TEST_MODE": "NO",
+      "AREA_OR_POINT": "Area"
+    }
+  },
+  {
+    "id": "ratnagiri",
+    "name": "Ratnagiri",
+    "source": "PRAHARI_RATNAGIRI_250m_22pred_score.tif",
+    "crs": "EPSG:32643",
+    "bounds": [
+      73.02727555192574,
+      16.49000389500378,
+      73.86451267049196,
+      18.075640771698957
+    ],
+    "sourceBounds": [
+      291210.0,
+      1824150.0,
+      378810.0,
+      1998930.0
+    ],
+    "resolution": [
+      30.0,
+      30.0
+    ],
+    "width": 2920,
+    "height": 5826,
+    "dtype": "float32",
+    "nodata": -9999.0,
+    "validPixels": 8947853,
+    "validFraction": 0.5259754924782153,
+    "minimum": 0.010352380573749542,
+    "maximum": 0.957176923751831,
+    "sourceBytes": 28578118,
+    "sha256": "135f08ee2afff991cc9293021ecde81e2aab84e46f39c58f806053649c698273",
+    "tags": {
+      "DESCRIPTION": "Uncalibrated landslide susceptibility score; not event probability or operational warning",
+      "DISTRICT": "RATNAGIRI",
+      "MODEL": "rf_250m_controlled_22pred_EXPERIMENT",
+      "RAINFALL_UNITS": "UNVERIFIED",
+      "TEST_MODE": "NO",
+      "AREA_OR_POINT": "Area"
+    }
+  },
+  {
+    "id": "satara",
+    "name": "Satara",
+    "source": "PRAHARI_SATARA_250m_22pred_score.tif",
+    "crs": "EPSG:32643",
+    "bounds": [
+      73.52993393720311,
+      17.086981182070996,
+      74.9064771189082,
+      18.185849894573973
+    ],
+    "sourceBounds": [
+      344520.0,
+      1889760.0,
+      490050.0,
+      2010750.0
+    ],
+    "resolution": [
+      30.0,
+      30.0
+    ],
+    "width": 4851,
+    "height": 4033,
+    "dtype": "float32",
+    "nodata": -9999.0,
+    "validPixels": 11250657,
+    "validFraction": 0.5750669223801596,
+    "minimum": 0.0,
+    "maximum": 0.9726696014404297,
+    "sourceBytes": 36918883,
+    "sha256": "8e0c80996ed11f55b001f362bea32e5db1b8295e6fa0b399b0f809a9d70304d7",
+    "tags": {
+      "DESCRIPTION": "Uncalibrated landslide susceptibility score; not event probability or operational warning",
+      "DISTRICT": "SATARA",
+      "MODEL": "rf_250m_controlled_22pred_EXPERIMENT",
+      "RAINFALL_UNITS": "UNVERIFIED",
+      "TEST_MODE": "NO",
+      "AREA_OR_POINT": "Area"
+    }
+  }
+]

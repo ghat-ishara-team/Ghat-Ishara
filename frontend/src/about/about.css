@@ -1,0 +1,77 @@
+.about-page { padding-block: 64px 56px; }
+.about-page h1, .about-page h2 { font-family: var(--font-display); font-weight: 400; text-wrap: balance; }
+.about-page h1 { font-size: clamp(44px, 4.8vw, 76px); line-height: 1.08; margin: 0 0 26px; }
+.about-page h2 { font-size: clamp(30px, 3vw, 42px); line-height: 1.15; margin: 0 0 20px; }
+.about-page h3 { font-size: 18px; font-weight: 500; color: #edf4e7; line-height: 1.45; margin: 0 0 12px; }
+.about-page p { color: #d0dcd4; font-size: 15px; line-height: 1.8; }
+.about-page p + p { margin-top: 14px; }
+.about-page strong { color: #eaf4e4; font-weight: 600; }
+.about-page .eyebrow { font-size: 10px; color: #b5dcae; letter-spacing: .2em; margin-bottom: 16px; }
+.about-hero { display: grid; grid-template-columns: 1.45fr 1fr; gap: 58px; align-items: center; }
+.about-page .about-lead { font-size: 18px; max-width: 690px; margin-bottom: 32px; }
+.about-landscape { margin: 0; min-width: 0; }
+.about-landscape img { display: block; width: 100%; height: 460px; object-fit: cover; object-position: 58% 65%; border-radius: 24px; border: 1px solid #8bce8650; }
+.about-landscape figcaption { color: #c6d7cc; font-size: 11px; line-height: 1.8; padding: 14px 5px 0; }
+.about-landscape a { text-decoration: underline; text-underline-offset: 3px; }
+.about-landscape a:hover { color: #b5e5aa; }
+.about-section { margin-top: 64px; }
+.about-motivation { display: grid; grid-template-columns: 1fr 1.4fr; gap: 56px; border-block: 1px solid #8bce8640; padding-block: 36px; }
+.about-motivation p:first-child:not(.eyebrow) { margin-top: 0; }
+.about-motivation p:last-child { margin-bottom: 0; }
+.about-section-heading { display: grid; grid-template-columns: 1.3fr 1fr; gap: 36px; align-items: end; margin-bottom: 28px; }
+.about-section-heading h2 { margin-bottom: 0; }
+.about-section-heading > p { margin: 0; font-size: 14px; }
+.about-districts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.about-districts a { min-width: 0; display: flex; align-items: center; gap: 16px; padding: 23px; border: 1px solid #8bce8645; border-radius: 14px; background: #0b2428fa; }
+.about-districts svg { color: #b5e5aa; flex-shrink: 0; }
+.about-districts svg:last-child { margin-left: auto; }
+.about-districts strong { font-family: var(--font-display); font-size: 29px; font-weight: 400; line-height: 1.2; }
+.about-districts small { display: block; font-size: 12px; color: #c6d7cc; line-height: 1.7; margin-top: 8px; }
+.about-districts a:hover { border-color: #a0d696; background: #254c3d; }
+.about-page .about-region-note { max-width: 900px; font-size: 13px; margin-top: 20px; }
+.about-capabilities { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.about-card { min-width: 0; padding: 28px; border: 1px solid #8bce8640; background: #0b2428fa; border-radius: 18px; }
+.about-card > svg { color: #b5dcae; margin-bottom: 22px; }
+.about-card > p:last-child { margin-bottom: 0; }
+.about-capabilities p { font-size: 14px; margin: 0; }
+.about-science { display: flex; gap: 24px; border-left: 3px solid #8bce86; border-radius: 0 20px 20px 0; background: linear-gradient(120deg, #173c34fa, #0b2428fa); padding: 36px; }
+.about-science > svg { color: #b5e5aa; flex-shrink: 0; margin-top: 3px; }
+.about-science p:not(.eyebrow) { max-width: 1000px; }
+.about-text-link { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; font-size: 14px; color: #b5e5aa; }
+.about-text-link:hover { text-decoration: underline; text-underline-offset: 5px; }
+.about-future { display: grid; grid-template-columns: 1fr 1.35fr; gap: 56px; }
+.about-future > ul { list-style: none; margin: 0; padding: 0; }
+.about-future li { padding: 24px 0; border-top: 1px solid #8bce8640; }
+.about-future li:first-child { padding-top: 0; border-top: 0; }
+.about-future li p { margin: 0; font-size: 14px; }
+.about-official h2 { font-size: 32px; }
+.about-official .eyebrow { font-size: 9px; }
+.about-footer { display: flex; justify-content: space-between; align-items: center; gap: 28px; border-top: 1px solid #8bce8640; margin-top: 48px; padding-top: 36px; }
+.about-footer h2 { font-size: 32px; margin-bottom: 10px; }
+.about-footer p { margin: 0; font-size: 14px; }
+.about-footer-links { display: flex; align-items: center; flex-wrap: wrap; gap: 24px; }
+@media (max-width: 1099px) {
+  .about-hero { gap: 32px; grid-template-columns: 1.3fr 1fr; }
+  .about-landscape img { height: 430px; }
+  .about-capabilities { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .about-footer { align-items: flex-start; flex-direction: column; }
+}
+@media (max-width: 759px) {
+  .about-hero, .about-motivation, .about-section-heading, .about-future { grid-template-columns: 1fr; gap: 24px; }
+  .about-hero { gap: 36px; }
+  .about-landscape img { height: 320px; }
+  .about-motivation h2, .about-future h2 { margin-bottom: 0; }
+  .about-science { gap: 16px; padding: 26px; }
+  .about-districts a { gap: 12px; padding: 20px; }
+}
+@media (max-width: 539px) {
+  .about-page { padding-block: 36px; }
+  .about-page .about-lead { font-size: 16px; }
+  .about-section { margin-top: 44px; }
+  .about-landscape img { height: 280px; border-radius: 18px; }
+  .about-districts, .about-capabilities { grid-template-columns: 1fr; }
+  .about-science { padding: 24px 20px; gap: 12px; }
+  .about-science > svg { width: 20px; }
+  .about-card { padding: 24px; }
+  .about-footer-links { gap: 16px 24px; }
+}
