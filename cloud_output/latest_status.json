@@ -1,5 +1,5 @@
 {
-  "checked_at_utc": "2026-11-12T22:13:11.849377+00:00",
+  "checked_at_utc": "2026-11-13T02:53:07.964728+00:00",
   "monitoring_health": "stale",
   "storm_state_is_current": false,
   "mode": "nonmonsoon_daily",
@@ -8,7 +8,7 @@
   "threshold_configured": true,
   "rain_trigger_threshold_30min_mm": 10.0,
   "latest_observation_start_utc": "2026-11-12T10:30:00+00:00",
-  "observation_age_hours": 11.22,
+  "observation_age_hours": 15.89,
   "data_fresh": false,
   "new_observations": 0,
   "stored_observations": 63,
@@ -36,26 +36,15 @@
       "missing": 81
     }
   },
-  "full_pipeline_attempted": true,
-  "full_pipeline_succeeded": true,
+  "full_pipeline_attempted": false,
+  "full_pipeline_succeeded": false,
   "pending_full_processing": false,
   "full_pipeline_retry_pending": false,
-  "full_pipeline_backlog_remaining": 0,
-  "pipeline_result": {
-    "processed_successfully": 5,
-    "processing_failed": 0,
-    "completed": true,
-    "download_result": {
-      "download_enabled": true,
-      "discovered": 5,
-      "pending": 5,
-      "selected": 5,
-      "downloaded": 5
-    }
-  },
+  "full_pipeline_backlog_remaining": null,
+  "pipeline_result": null,
   "last_successful_full_run_utc": "2026-11-12T22:13:11.849377+00:00",
   "errors": [
-    "monitoring: HTTPSConnectionPool(host='gpm1.gesdisc.eosdis.nasa.gov', port=443): Read timed out. (read timeout=45)"
+    "monitoring: 404 Client Error: Not Found for url: https://gpm1.gesdisc.eosdis.nasa.gov/data/GPM_L3/GPM_3IMERGHHE.07/2026/317/"
   ],
   "warning": "Observed IMERG Early Run; not a forecast or validated landslide warning"
 }
