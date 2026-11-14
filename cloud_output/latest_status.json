@@ -1,5 +1,5 @@
 {
-  "checked_at_utc": "2026-11-14T13:46:58.210049+00:00",
+  "checked_at_utc": "2026-11-14T19:05:46.032143+00:00",
   "monitoring_health": "current",
   "storm_state_is_current": true,
   "mode": "nonmonsoon_daily",
@@ -7,21 +7,21 @@
   "storm_active": false,
   "threshold_configured": true,
   "rain_trigger_threshold_30min_mm": 10.0,
-  "latest_observation_start_utc": "2026-11-14T08:30:00+00:00",
-  "observation_age_hours": 4.78,
+  "latest_observation_start_utc": "2026-11-14T13:30:00+00:00",
+  "observation_age_hours": 5.1,
   "data_fresh": true,
   "new_observations": 12,
-  "stored_observations": 77,
-  "backlog_before": 73,
+  "stored_observations": 78,
+  "backlog_before": 71,
   "backlog_processed": 12,
-  "backlog_remaining": 61,
+  "backlog_remaining": 59,
   "failed_observations": 0,
   "rainfall_windows": {
     "4h": {
       "complete": true,
       "observations": 8,
       "required": 8,
-      "max_mm": 1.25
+      "max_mm": 0.0
     },
     "24h": {
       "complete": false,
@@ -31,18 +31,29 @@
     },
     "72h": {
       "complete": false,
-      "observations": 77,
+      "observations": 78,
       "required": 144,
-      "missing": 67
+      "missing": 66
     }
   },
-  "full_pipeline_attempted": false,
-  "full_pipeline_succeeded": false,
-  "pending_full_processing": true,
+  "full_pipeline_attempted": true,
+  "full_pipeline_succeeded": true,
+  "pending_full_processing": false,
   "full_pipeline_retry_pending": false,
-  "full_pipeline_backlog_remaining": null,
-  "pipeline_result": null,
-  "last_successful_full_run_utc": "2026-11-13T23:50:42.906526+00:00",
+  "full_pipeline_backlog_remaining": 0,
+  "pipeline_result": {
+    "processed_successfully": 12,
+    "processing_failed": 0,
+    "completed": true,
+    "download_result": {
+      "download_enabled": true,
+      "discovered": 5,
+      "pending": 0,
+      "selected": 0,
+      "downloaded": 0
+    }
+  },
+  "last_successful_full_run_utc": "2026-11-14T19:05:46.032143+00:00",
   "errors": [],
   "warning": "Observed IMERG Early Run; not a forecast or validated landslide warning"
 }
