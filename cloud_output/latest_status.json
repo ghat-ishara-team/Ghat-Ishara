@@ -1,20 +1,20 @@
 {
-  "checked_at_utc": "2026-11-14T22:57:47.608531+00:00",
-  "monitoring_health": "current",
-  "storm_state_is_current": true,
+  "checked_at_utc": "2026-11-15T02:35:17.278611+00:00",
+  "monitoring_health": "stale",
+  "storm_state_is_current": false,
   "mode": "nonmonsoon_daily",
   "monsoon": false,
   "storm_active": false,
   "threshold_configured": true,
   "rain_trigger_threshold_30min_mm": 10.0,
   "latest_observation_start_utc": "2026-11-14T17:30:00+00:00",
-  "observation_age_hours": 4.96,
-  "data_fresh": true,
-  "new_observations": 12,
-  "stored_observations": 84,
-  "backlog_before": 66,
-  "backlog_processed": 12,
-  "backlog_remaining": 54,
+  "observation_age_hours": 8.59,
+  "data_fresh": false,
+  "new_observations": 0,
+  "stored_observations": 76,
+  "backlog_before": 0,
+  "backlog_processed": 0,
+  "backlog_remaining": 0,
   "failed_observations": 0,
   "rainfall_windows": {
     "4h": {
@@ -31,9 +31,9 @@
     },
     "72h": {
       "complete": false,
-      "observations": 84,
+      "observations": 76,
       "required": 144,
-      "missing": 60
+      "missing": 68
     }
   },
   "full_pipeline_attempted": false,
@@ -43,6 +43,8 @@
   "full_pipeline_backlog_remaining": null,
   "pipeline_result": null,
   "last_successful_full_run_utc": "2026-11-14T19:05:46.032143+00:00",
-  "errors": [],
+  "errors": [
+    "monitoring: 404 Client Error: Not Found for url: https://gpm1.gesdisc.eosdis.nasa.gov/data/GPM_L3/GPM_3IMERGHHE.07/2026/319/"
+  ],
   "warning": "Observed IMERG Early Run; not a forecast or validated landslide warning"
 }
