@@ -1,5 +1,5 @@
 {
-  "checked_at_utc": "2026-11-15T17:00:42.717536+00:00",
+  "checked_at_utc": "2026-11-15T21:42:56.035484+00:00",
   "monitoring_health": "current",
   "storm_state_is_current": true,
   "mode": "nonmonsoon_daily",
@@ -7,42 +7,53 @@
   "storm_active": false,
   "threshold_configured": true,
   "rain_trigger_threshold_30min_mm": 10.0,
-  "latest_observation_start_utc": "2026-11-15T11:30:00+00:00",
-  "observation_age_hours": 5.01,
+  "latest_observation_start_utc": "2026-11-15T16:30:00+00:00",
+  "observation_age_hours": 4.72,
   "data_fresh": true,
   "new_observations": 12,
-  "stored_observations": 83,
-  "backlog_before": 66,
+  "stored_observations": 92,
+  "backlog_before": 58,
   "backlog_processed": 12,
-  "backlog_remaining": 54,
+  "backlog_remaining": 46,
   "failed_observations": 0,
   "rainfall_windows": {
     "4h": {
       "complete": true,
       "observations": 8,
       "required": 8,
-      "max_mm": 0.0
+      "max_mm": 1.9749999046325684
     },
     "24h": {
       "complete": false,
-      "observations": 30,
+      "observations": 29,
       "required": 48,
-      "missing": 18
+      "missing": 19
     },
     "72h": {
       "complete": false,
-      "observations": 83,
+      "observations": 92,
       "required": 144,
-      "missing": 61
+      "missing": 52
     }
   },
-  "full_pipeline_attempted": false,
-  "full_pipeline_succeeded": false,
-  "pending_full_processing": true,
+  "full_pipeline_attempted": true,
+  "full_pipeline_succeeded": true,
+  "pending_full_processing": false,
   "full_pipeline_retry_pending": false,
-  "full_pipeline_backlog_remaining": null,
-  "pipeline_result": null,
-  "last_successful_full_run_utc": "2026-11-14T19:05:46.032143+00:00",
+  "full_pipeline_backlog_remaining": 0,
+  "pipeline_result": {
+    "processed_successfully": 12,
+    "processing_failed": 0,
+    "completed": true,
+    "download_result": {
+      "download_enabled": true,
+      "discovered": 6,
+      "pending": 0,
+      "selected": 0,
+      "downloaded": 0
+    }
+  },
+  "last_successful_full_run_utc": "2026-11-15T21:42:56.035484+00:00",
   "errors": [],
   "warning": "Observed IMERG Early Run; not a forecast or validated landslide warning"
 }
