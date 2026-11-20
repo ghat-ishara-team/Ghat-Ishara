@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "label": "Relative model susceptibility score",
+  "breaks": [0, 0.2, 0.4, 0.6, 0.8, 1],
+  "colors": ["#256d85", "#55aa91", "#e4cf75", "#e79b52", "#ce605b"],
+  "labels": ["0–<0.2", "0.2–<0.4", "0.4–<0.6", "0.6–<0.8", "0.8–1.0"]
+}
