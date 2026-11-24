@@ -1,20 +1,20 @@
 {
-  "checked_at_utc": "2026-11-23T12:21:32.863427+00:00",
-  "monitoring_health": "current",
-  "storm_state_is_current": true,
+  "checked_at_utc": "2026-11-24T00:18:27.765498+00:00",
+  "monitoring_health": "stale",
+  "storm_state_is_current": false,
   "mode": "nonmonsoon_daily",
   "monsoon": false,
   "storm_active": false,
   "threshold_configured": true,
   "rain_trigger_threshold_30min_mm": 10.0,
   "latest_observation_start_utc": "2026-11-23T06:30:00+00:00",
-  "observation_age_hours": 5.36,
-  "data_fresh": true,
-  "new_observations": 12,
-  "stored_observations": 80,
-  "backlog_before": 69,
-  "backlog_processed": 12,
-  "backlog_remaining": 57,
+  "observation_age_hours": 17.31,
+  "data_fresh": false,
+  "new_observations": 0,
+  "stored_observations": 61,
+  "backlog_before": 0,
+  "backlog_processed": 0,
+  "backlog_remaining": 0,
   "failed_observations": 0,
   "rainfall_windows": {
     "4h": {
@@ -31,18 +31,21 @@
     },
     "72h": {
       "complete": false,
-      "observations": 80,
+      "observations": 61,
       "required": 144,
-      "missing": 64
+      "missing": 83
     }
   },
-  "full_pipeline_attempted": false,
+  "full_pipeline_attempted": true,
   "full_pipeline_succeeded": false,
   "pending_full_processing": true,
-  "full_pipeline_retry_pending": false,
+  "full_pipeline_retry_pending": true,
   "full_pipeline_backlog_remaining": null,
   "pipeline_result": null,
   "last_successful_full_run_utc": "2026-11-22T22:26:26.989537+00:00",
-  "errors": [],
+  "errors": [
+    "monitoring: HTTPSConnectionPool(host='urs.earthdata.nasa.gov', port=443): Max retries exceeded with url: /api/users/find_or_create_token (Caused by NewConnectionError(\"HTTPSConnection(host='urs.earthdata.nasa.gov', port=443): Failed to establish a new connection: [Errno 101] Network is unreachable\"))",
+    "full_pipeline: NASA authentication/session error: HTTPSConnectionPool(host='urs.earthdata.nasa.gov', port=443): Max retries exceeded with url: /api/users/find_or_create_token (Caused by NewConnectionError(\"HTTPSConnection(host='urs.earthdata.nasa.gov', port=443): Failed to establish a new connection: [Errno 101] Network is unreachable\"))"
+  ],
   "warning": "Observed IMERG Early Run; not a forecast or validated landslide warning"
 }
