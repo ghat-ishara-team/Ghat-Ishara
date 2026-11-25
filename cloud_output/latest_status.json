@@ -1,5 +1,5 @@
 {
-  "checked_at_utc": "2026-11-25T14:16:22.898853+00:00",
+  "checked_at_utc": "2026-11-25T23:16:36.184970+00:00",
   "monitoring_health": "current",
   "storm_state_is_current": true,
   "mode": "nonmonsoon_daily",
@@ -7,8 +7,8 @@
   "storm_active": false,
   "threshold_configured": true,
   "rain_trigger_threshold_30min_mm": 10.0,
-  "latest_observation_start_utc": "2026-11-25T08:30:00+00:00",
-  "observation_age_hours": 5.27,
+  "latest_observation_start_utc": "2026-11-25T17:30:00+00:00",
+  "observation_age_hours": 5.28,
   "data_fresh": true,
   "new_observations": 12,
   "stored_observations": 48,
@@ -21,7 +21,7 @@
       "complete": true,
       "observations": 8,
       "required": 8,
-      "max_mm": 0.0
+      "max_mm": 7.244999885559082
     },
     "24h": {
       "complete": false,
@@ -36,13 +36,24 @@
       "missing": 96
     }
   },
-  "full_pipeline_attempted": false,
-  "full_pipeline_succeeded": false,
-  "pending_full_processing": true,
+  "full_pipeline_attempted": true,
+  "full_pipeline_succeeded": true,
+  "pending_full_processing": false,
   "full_pipeline_retry_pending": false,
-  "full_pipeline_backlog_remaining": null,
-  "pipeline_result": null,
-  "last_successful_full_run_utc": "2026-11-24T20:51:22.513524+00:00",
+  "full_pipeline_backlog_remaining": 0,
+  "pipeline_result": {
+    "processed_successfully": 12,
+    "processing_failed": 0,
+    "completed": true,
+    "download_result": {
+      "download_enabled": true,
+      "discovered": 5,
+      "pending": 0,
+      "selected": 0,
+      "downloaded": 0
+    }
+  },
+  "last_successful_full_run_utc": "2026-11-25T23:16:36.184970+00:00",
   "errors": [],
   "warning": "Observed IMERG Early Run; not a forecast or validated landslide warning"
 }
