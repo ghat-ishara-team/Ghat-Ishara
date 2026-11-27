@@ -1,5 +1,5 @@
 {
-  "checked_at_utc": "2026-11-27T09:00:40.552395+00:00",
+  "checked_at_utc": "2026-11-27T18:53:49.166684+00:00",
   "monitoring_health": "current",
   "storm_state_is_current": true,
   "mode": "nonmonsoon_daily",
@@ -7,14 +7,14 @@
   "storm_active": false,
   "threshold_configured": true,
   "rain_trigger_threshold_30min_mm": 10.0,
-  "latest_observation_start_utc": "2026-11-27T03:30:00+00:00",
-  "observation_age_hours": 5.01,
+  "latest_observation_start_utc": "2026-11-27T13:30:00+00:00",
+  "observation_age_hours": 4.9,
   "data_fresh": true,
   "new_observations": 12,
   "stored_observations": 57,
-  "backlog_before": 92,
+  "backlog_before": 93,
   "backlog_processed": 12,
-  "backlog_remaining": 80,
+  "backlog_remaining": 81,
   "failed_observations": 0,
   "rainfall_windows": {
     "4h": {
@@ -47,13 +47,13 @@
     "completed": true,
     "download_result": {
       "download_enabled": true,
-      "discovered": 5,
+      "discovered": 6,
       "pending": 0,
       "selected": 0,
       "downloaded": 0
     }
   },
-  "last_successful_full_run_utc": "2026-11-27T09:00:40.552395+00:00",
+  "last_successful_full_run_utc": "2026-11-27T18:53:49.166684+00:00",
   "errors": [],
   "warning": "Observed IMERG Early Run; not a forecast or validated landslide warning"
 }
