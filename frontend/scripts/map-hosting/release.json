@@ -1,0 +1,275 @@
+{
+  "description": "Pinned metadata for the existing audited release; no generated payloads. Update only after a separately reviewed asset release.",
+  "treeSha256": "e063ee6a37ab4d8499cfa6d4f99f5fb60b89d9b50e5bd7223b3bc46805265fc6",
+  "catalogSha256": "28c4e24eba623441a389e87c11bc468b73a6112d3616009177df678795918377",
+  "visual": {
+    "buildId": "20261026t193421624697z",
+    "manifestSha256": "a6fcfcbc647c44f2e0c4a28caa4d21067302b3df511581650a74123872dd16be",
+    "files": 1535,
+    "bytes": 11229868,
+    "districts": {
+      "pune": {
+        "files": 607,
+        "bytes": 2705659,
+        "zooms": {
+          "6": [
+            45,
+            28,
+            45,
+            28
+          ],
+          "7": [
+            90,
+            56,
+            90,
+            57
+          ],
+          "8": [
+            180,
+            113,
+            181,
+            115
+          ],
+          "9": [
+            360,
+            227,
+            362,
+            230
+          ],
+          "10": [
+            720,
+            455,
+            725,
+            460
+          ],
+          "11": [
+            1441,
+            911,
+            1451,
+            920
+          ],
+          "12": [
+            2882,
+            1822,
+            2903,
+            1841
+          ]
+        },
+        "sampleTile": "/generated-data/susceptibility/20261026t193421624697z/pune/6/45/28.png",
+        "sampleSha256": "94e0f225fb4e46e127c21c3043e1a49157d688cae8250d8905ad0fd01ff46110"
+      },
+      "raigad": {
+        "files": 253,
+        "bytes": 2851134,
+        "zooms": {
+          "6": [
+            44,
+            28,
+            45,
+            28
+          ],
+          "7": [
+            89,
+            57,
+            90,
+            57
+          ],
+          "8": [
+            179,
+            114,
+            180,
+            115
+          ],
+          "9": [
+            359,
+            228,
+            360,
+            230
+          ],
+          "10": [
+            719,
+            456,
+            721,
+            460
+          ],
+          "11": [
+            1438,
+            913,
+            1443,
+            920
+          ],
+          "12": [
+            2876,
+            1826,
+            2886,
+            1841
+          ]
+        },
+        "sampleTile": "/generated-data/susceptibility/20261026t193421624697z/raigad/6/44/28.png",
+        "sampleSha256": "49fb5e560358e1dbe3fa10bb67fb8638283eccdffb9c7fd782dfed6d260ac109"
+      },
+      "ratnagiri": {
+        "files": 330,
+        "bytes": 3672955,
+        "zooms": {
+          "6": [
+            44,
+            28,
+            45,
+            29
+          ],
+          "7": [
+            89,
+            57,
+            90,
+            58
+          ],
+          "8": [
+            179,
+            114,
+            180,
+            116
+          ],
+          "9": [
+            359,
+            229,
+            361,
+            232
+          ],
+          "10": [
+            719,
+            459,
+            722,
+            464
+          ],
+          "11": [
+            1439,
+            919,
+            1444,
+            928
+          ],
+          "12": [
+            2878,
+            1838,
+            2888,
+            1857
+          ]
+        },
+        "sampleTile": "/generated-data/susceptibility/20261026t193421624697z/ratnagiri/6/44/28.png",
+        "sampleSha256": "7a20408cb4aee15d0e69538bb5eef9a0d49a3a04cab9a16cfaf1b97b661c824e"
+      },
+      "satara": {
+        "files": 345,
+        "bytes": 2000120,
+        "zooms": {
+          "6": [
+            45,
+            28,
+            45,
+            28
+          ],
+          "7": [
+            90,
+            57,
+            90,
+            57
+          ],
+          "8": [
+            180,
+            114,
+            181,
+            115
+          ],
+          "9": [
+            360,
+            229,
+            362,
+            231
+          ],
+          "10": [
+            721,
+            459,
+            725,
+            462
+          ],
+          "11": [
+            1442,
+            918,
+            1450,
+            925
+          ],
+          "12": [
+            2884,
+            1837,
+            2900,
+            1850
+          ]
+        },
+        "sampleTile": "/generated-data/susceptibility/20261026t193421624697z/satara/6/45/28.png",
+        "sampleSha256": "424f1004c0b60486bb96a84bb5b3e2bbf99dc6f9334f559d21ebdf55ed139798"
+      }
+    }
+  },
+  "numerical": {
+    "buildId": "20261026t213946834293z",
+    "manifestSha256": "ad6bce229c65574b8a6a6f8c66f7f86e36ef91cde1460b5c5687ab8840e7cda1",
+    "files": 879,
+    "bytes": 135847233
+  },
+  "references": [
+    {
+      "district": "Pune",
+      "label": "ui-valid",
+      "longitude": 74.23472338457385,
+      "latitude": 18.669260130198676,
+      "row": 2686,
+      "column": 3209,
+      "score": 0.0004909090930595994
+    },
+    {
+      "district": "Raigad",
+      "label": "ui-valid",
+      "longitude": 73.2239308917951,
+      "latitude": 18.47377778046218,
+      "row": 2433,
+      "column": 1439,
+      "score": 0.6599254012107849
+    },
+    {
+      "district": "Ratnagiri",
+      "label": "ui-valid",
+      "longitude": 73.46548344352873,
+      "latitude": 17.274990262264186,
+      "row": 2943,
+      "column": 1522,
+      "score": 0.5269906520843506
+    },
+    {
+      "district": "Satara",
+      "label": "ui-valid",
+      "longitude": 74.18592039887697,
+      "latitude": 17.663425300839446,
+      "row": 1920,
+      "column": 2304,
+      "score": 0.007219047751277685
+    },
+    {
+      "district": "Pune",
+      "label": "zero",
+      "longitude": 73.97274397919601,
+      "latitude": 19.273911111584397,
+      "row": 451,
+      "column": 2301,
+      "score": 0.0
+    },
+    {
+      "district": "Pune",
+      "label": "nodata",
+      "longitude": 73.70315310396853,
+      "latitude": 19.361106895743113,
+      "row": 123,
+      "column": 1359,
+      "score": null
+    }
+  ]
+}
